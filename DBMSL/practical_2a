@@ -1,0 +1,25 @@
+-- create
+CREATE TABLE EMPLOYEE (
+  empId INTEGER PRIMARY KEY auto_increment,
+  fname varchar(10) NOT NULL,
+  lname varchar(10) NOT NULL,
+  dept varchar(10) NOT NULL,
+  email varchar(20) unique,
+  salary int check (salary >= 50000),
+  doj timestamp default current_timestamp,
+  dob date,
+  gender enum('Male', 'Female') NOT NULL
+);
+
+-- insert
+INSERT INTO EMPLOYEE (fname, lname, dept, email, salary,dob, gender) 
+VALUES ('Tony', 'Stark', 'Sales', 'tony@gmail.com', 50000000,'2005-05-20', 'Male');
+
+INSERT INTO EMPLOYEE (fname, lname, dept, email, salary,dob, gender) 
+VALUES ('Pepper', 'Potts', 'Finance', 'pepper@gmail.com', 50000000,'2010-05-20', 'Female');
+
+-- fetch 
+describe EMPLOYEE;
+
+select * from EMPLOYEE
+
