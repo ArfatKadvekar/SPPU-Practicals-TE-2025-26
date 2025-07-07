@@ -1,0 +1,45 @@
+create table dept_1(
+	deptId varchar(5) primary key not null,
+	name varchar(20) not null,
+	location varchar(10) not null
+);
+
+create table emp_1(
+	empId int primary key not null,
+	name varchar(10) not null,
+	empdeptId varchar(5),
+	foreign key (empdeptId) references dept_1(deptId)
+	ON delete cascade
+	ON update cascade	
+);
+
+create table emp_restrict(
+	empId int primary key not null,
+	name varchar(10) not null,
+	empdeptId varchar(5),
+	foreign key (empdeptId) references dept_1(deptId)
+	ON delete restrict
+	ON update restrict	
+);
+
+create table emp_set(
+	empId int primary key not null,
+	name varchar(10) not null,
+	empdeptId varchar(5),
+	foreign key (empdeptId) references dept_1(deptId)
+	ON delete set null
+	ON update set null	
+);
+
+INSERT INTO dept_1 (deptId, name, location) 
+VALUES ('D1', 'HR', 'A1');
+
+INSERT INTO dept_1 (deptId, name, location) 
+VALUES ('D2', 'Sales', 'A3');
+
+INSERT INTO emp_1 (empId, name, empdeptId) 
+VALUES (101, 'Tony', 'D1');
+
+delete from dept_1 where deptId = 'D1';
+
+update dept_1 set deptId = 'D3';

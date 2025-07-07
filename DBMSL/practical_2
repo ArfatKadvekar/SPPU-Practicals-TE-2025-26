@@ -1,0 +1,174 @@
+create table Employee(
+Emp_id int(3) primary key not null auto_increment, 
+Dept_id int(5) not null,
+Emp_fname varchar(20) not null,
+Emp_lname varchar(20) not null ,
+Emp_Position varchar(30) not null, 
+Emp_salary integer(10) not null,
+Emp_JoinDate date not null
+);
+
+create table Dept(
+	Dept_id varchar(10) primary key not null,
+	Dept_name varchar(20) not null,
+	Dept_location varchar(10) not null
+);
+
+create table Project(
+Proj_id varchar(10) primary key not null,
+Dept_id varchar(10) not null,
+Proj_Name varchar(20) not null,
+Proj_Location varchar(30) not null,
+Proj_cost int(10) not null,
+Proj_year year not null
+);
+
+INSERT INTO Employee (Dept_id, Emp_fname, Emp_lname, Emp_Position, Emp_salary, Emp_JoinDate) VALUES
+(10001, 'John', 'Doe', 'Software Engineer', 75000, '2020-06-15'),
+(10002, 'Jane', 'Smith', 'Data Analyst', 68000, '2019-03-22'),
+(10003, 'Michael', 'Johnson', 'Project Manager', 90000, '2018-11-05'),
+(10001, 'Emily', 'Davis', 'UX Designer', 72000, '2021-01-30'),
+(10004, 'David', 'Wilson', 'DevOps Engineer', 85000, '2017-08-18'),
+(10002, 'Sarah', 'Miller', 'QA Tester', 63000, '2022-04-12'),
+(10005, 'Chris', 'Brown', 'Product Owner', 95000, '2016-09-25'),
+(10003, 'Amanda', 'Taylor', 'Business Analyst', 70000, '2020-12-01'),
+(10004, 'James', 'Anderson', 'System Administrator', 78000, '2019-07-14'),
+(10001, 'Laura', 'Thomas', 'Frontend Developer', 72000, '2021-03-09');
+
+--Select Clause
+
+mysql> select * from Employee;
++--------+---------+-----------+-----------+----------------------+------------+--------------+
+| Emp_id | Dept_id | Emp_fname | Emp_lname | Emp_Position         | Emp_salary | Emp_JoinDate |
++--------+---------+-----------+-----------+----------------------+------------+--------------+
+|      1 |   10001 | John      | Doe       | Software Engineer    |      75000 | 2020-06-15   |
+|      2 |   10002 | Jane      | Smith     | Data Analyst         |      68000 | 2019-03-22   |
+|      3 |   10003 | Michael   | Johnson   | Project Manager      |      90000 | 2018-11-05   |
+|      4 |   10001 | Emily     | Davis     | UX Designer          |      72000 | 2021-01-30   |
+|      5 |   10004 | David     | Wilson    | DevOps Engineer      |      85000 | 2017-08-18   |
+|      6 |   10002 | Sarah     | Miller    | QA Tester            |      63000 | 2022-04-12   |
+|      7 |   10005 | Chris     | Brown     | Product Owner        |      95000 | 2016-09-25   |
+|      8 |   10003 | Amanda    | Taylor    | Business Analyst     |      70000 | 2020-12-01   |
+|      9 |   10004 | James     | Anderson  | System Administrator |      78000 | 2019-07-14   |
+|     10 |   10001 | Laura     | Thomas    | Frontend Developer   |      72000 | 2021-03-09   |
++--------+---------+-----------+-----------+----------------------+------------+--------------+
+
+mysql> select Emp_Position from Employee;
++----------------------+
+| Emp_Position         |
++----------------------+
+| Software Engineer    |
+| Data Analyst         |
+| Project Manager      |
+| UX Designer          |
+| DevOps Engineer      |
+| QA Tester            |
+| Product Owner        |
+| Business Analyst     |
+| System Administrator |
+| Frontend Developer   |
++----------------------+
+
+mysql> select distinct Dept_id from Employee;
++---------+
+| Dept_id |
++---------+
+|   10001 |
+|   10002 |
+|   10003 |
+|   10004 |
+|   10005 |
++---------+
+
+mysql> select Emp_salary+11 from Employee;
++---------------+
+| Emp_salary+11 |
++---------------+
+|         75011 |
+|         68011 |
+|         90011 |
+|         72011 |
+|         85011 |
+|         63011 |
+|         95011 |
+|         70011 |
+|         78011 |
+|         72011 |
++---------------+
+
+-- Select clause aggregate functions
+
+mysql> select AVG(Emp_salary) from Employee;
++-----------------+
+| AVG(Emp_salary) |
++-----------------+
+|      76800.0000 |
++-----------------+
+
+mysql> select sum(Emp_salary) from Employee;
++-----------------+
+| sum(Emp_salary) |
++-----------------+
+|          768000 |
++-----------------+
+
+mysql> select min(Emp_salary) from Employee;
++-----------------+
+| min(Emp_salary) |
++-----------------+
+|           63000 |
++-----------------+
+
+mysql> select max(Emp_salary) from Employee;
++-----------------+
+| max(Emp_salary) |
++-----------------+
+|           95000 |
++-----------------+
+
+mysql> select Count(Emp_salary) from Employee;
++-------------------+
+| Count(Emp_salary) |
++-------------------+
+|                10 |
++-------------------+
+
+mysql> select Count(Distinct(Emp_salary)) from Employee;
++-----------------------------+
+| Count(Distinct(Emp_salary)) |
++-----------------------------+
+|                           9 |
++-----------------------------+
+
+--Select Clause operators 
+mysql> select Emp_fname, Emp_lname from Employee  where Emp_salary = 95000;
++-----------+-----------+
+| Emp_fname | Emp_lname |
++-----------+-----------+
+| Chris     | Brown     |
++-----------+-----------+
+
+mysql> select Emp_fname, Emp_lname from Employee  where Emp_salary >=75000;
++-----------+-----------+
+| Emp_fname | Emp_lname |
++-----------+-----------+
+| John      | Doe       |
+| Michael   | Johnson   |
+| David     | Wilson    |
+| Chris     | Brown     |
+| James     | Anderson  |
++-----------+-----------+
+
+mysql> select * from Employee where dept_id between 10001 and 10003;
++--------+---------+-----------+-----------+--------------------+------------+--------------+
+| Emp_id | Dept_id | Emp_fname | Emp_lname | Emp_Position       | Emp_salary | Emp_JoinDate |
++--------+---------+-----------+-----------+--------------------+------------+--------------+
+|      1 |   10001 | John      | Doe       | Software Engineer  |      75000 | 2020-06-15   |
+|      2 |   10002 | Jane      | Smith     | Data Analyst       |      68000 | 2019-03-22   |
+|      3 |   10003 | Michael   | Johnson   | Project Manager    |      90000 | 2018-11-05   |
+|      4 |   10001 | Emily     | Davis     | UX Designer        |      72000 | 2021-01-30   |
+|      6 |   10002 | Sarah     | Miller    | QA Tester          |      63000 | 2022-04-12   |
+|      8 |   10003 | Amanda    | Taylor    | Business Analyst   |      70000 | 2020-12-01   |
+|     10 |   10001 | Laura     | Thomas    | Frontend Developer |      72000 | 2021-03-09   |
++--------+---------+-----------+-----------+--------------------+------------+--------------+
+
