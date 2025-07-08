@@ -31,14 +31,6 @@ create table emp_set(
 	ON update set null	
 );
 
-INSERT INTO dept_1 (deptId, name, location) 
-VALUES ('D1', 'HR', 'A1');
-
-INSERT INTO dept_1 (deptId, name, location) 
-VALUES ('D2', 'Sales', 'A3');
-
-INSERT INTO emp_1 (empId, name, empdeptId) 
-VALUES (101, 'Tony', 'D1');
 
 delete from dept_1 where deptId = 'D1';
 
