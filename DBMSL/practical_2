@@ -172,3 +172,104 @@ mysql> select * from Employee where dept_id between 10001 and 10003;
 |     10 |   10001 | Laura     | Thomas    | Frontend Developer |      72000 | 2021-03-09   |
 +--------+---------+-----------+-----------+--------------------+------------+--------------+
 
+mysql> SELECT * FROM Employee
+WHERE Dept_id IN (10001, 10003);
++--------+---------+-----------+-----------+--------------------+------------+--------------+
+| Emp_id | Dept_id | Emp_fname | Emp_lname | Emp_Position       | Emp_salary | Emp_JoinDate |
++--------+---------+-----------+-----------+--------------------+------------+--------------+
+|      1 |   10001 | John      | Doe       | Software Engineer  |      75000 | 2020-06-15   |
+|      3 |   10003 | Michael   | Johnson   | Project Manager    |      90000 | 2018-11-05   |
+|      4 |   10001 | Emily     | Davis     | UX Designer        |      72000 | 2021-01-30   |
+|      8 |   10003 | Amanda    | Taylor    | Business Analyst   |      70000 | 2020-12-01   |
+|     10 |   10001 | Laura     | Thomas    | Frontend Developer |      72000 | 2021-03-09   |
++--------+---------+-----------+-----------+--------------------+------------+--------------+
+
+mysql> SELECT * FROM Employee
+WHERE Dept_id NOT IN (10002, 10004);
++--------+---------+-----------+-----------+--------------------+------------+--------------+
+| Emp_id | Dept_id | Emp_fname | Emp_lname | Emp_Position       | Emp_salary | Emp_JoinDate |
++--------+---------+-----------+-----------+--------------------+------------+--------------+
+|      1 |   10001 | John      | Doe       | Software Engineer  |      75000 | 2020-06-15   |
+|      3 |   10003 | Michael   | Johnson   | Project Manager    |      90000 | 2018-11-05   |
+|      4 |   10001 | Emily     | Davis     | UX Designer        |      72000 | 2021-01-30   |
+|      7 |   10005 | Chris     | Brown     | Product Owner      |      95000 | 2016-09-25   |
+|      8 |   10003 | Amanda    | Taylor    | Business Analyst   |      70000 | 2020-12-01   |
+|     10 |   10001 | Laura     | Thomas    | Frontend Developer |      72000 | 2021-03-09   |
++--------+---------+-----------+-----------+--------------------+------------+--------------+
+
+mysql> SELECT * FROM Employee
+WHERE Emp_fname LIKE 'J%';
++--------+---------+-----------+-----------+----------------------+------------+--------------+
+| Emp_id | Dept_id | Emp_fname | Emp_lname | Emp_Position         | Emp_salary | Emp_JoinDate |
++--------+---------+-----------+-----------+----------------------+------------+--------------+
+|      1 |   10001 | John      | Doe       | Software Engineer    |      75000 | 2020-06-15   |
+|      2 |   10002 | Jane      | Smith     | Data Analyst         |      68000 | 2019-03-22   |
+|      9 |   10004 | James     | Anderson  | System Administrator |      78000 | 2019-07-14   |
++--------+---------+-----------+-----------+----------------------+------------+--------------+
+
+mysql> SELECT * FROM Employee
+WHERE Emp_Position NOT LIKE '%Engineer%';
+
++--------+---------+-----------+-----------+----------------------+------------+--------------+
+| Emp_id | Dept_id | Emp_fname | Emp_lname | Emp_Position         | Emp_salary | Emp_JoinDate |
++--------+---------+-----------+-----------+----------------------+------------+--------------+
+|      2 |   10002 | Jane      | Smith     | Data Analyst         |      68000 | 2019-03-22   |
+|      3 |   10003 | Michael   | Johnson   | Project Manager      |      90000 | 2018-11-05   |
+|      4 |   10001 | Emily     | Davis     | UX Designer          |      72000 | 2021-01-30   |
+|      6 |   10002 | Sarah     | Miller    | QA Tester            |      63000 | 2022-04-12   |
+|      7 |   10005 | Chris     | Brown     | Product Owner        |      95000 | 2016-09-25   |
+|      8 |   10003 | Amanda    | Taylor    | Business Analyst     |      70000 | 2020-12-01   |
+|      9 |   10004 | James     | Anderson  | System Administrator |      78000 | 2019-07-14   |
+|     10 |   10001 | Laura     | Thomas    | Frontend Developer   |      72000 | 2021-03-09   |
++--------+---------+-----------+-----------+----------------------+------------+--------------+
+
+
+mysql> SELECT * FROM Employee
+WHERE Emp_Position IS NULL;
+
+Emp_Position is nullable, get records where it's NULL
+mysql> SELECT * FROM Employee
+WHERE Emp_Position IS NOT NULL;
++--------+---------+-----------+-----------+----------------------+------------+--------------+
+| Emp_id | Dept_id | Emp_fname | Emp_lname | Emp_Position         | Emp_salary | Emp_JoinDate |
++--------+---------+-----------+-----------+----------------------+------------+--------------+
+|      1 |   10001 | John      | Doe       | Software Engineer    |      75000 | 2020-06-15   |
+|      2 |   10002 | Jane      | Smith     | Data Analyst         |      68000 | 2019-03-22   |
+|      3 |   10003 | Michael   | Johnson   | Project Manager      |      90000 | 2018-11-05   |
+|      4 |   10001 | Emily     | Davis     | UX Designer          |      72000 | 2021-01-30   |
+|      5 |   10004 | David     | Wilson    | DevOps Engineer      |      85000 | 2017-08-18   |
+|      6 |   10002 | Sarah     | Miller    | QA Tester            |      63000 | 2022-04-12   |
+|      7 |   10005 | Chris     | Brown     | Product Owner        |      95000 | 2016-09-25   |
+|      8 |   10003 | Amanda    | Taylor    | Business Analyst     |      70000 | 2020-12-01   |
+|      9 |   10004 | James     | Anderson  | System Administrator |      78000 | 2019-07-14   |
+|     10 |   10001 | Laura     | Thomas    | Frontend Developer   |      72000 | 2021-03-09   |
++--------+---------+-----------+-----------+----------------------+------------+--------------+
+
+mysql> SELECT * FROM Employee
+ORDER BY Emp_salary DESC;
++--------+---------+-----------+-----------+----------------------+------------+--------------+
+| Emp_id | Dept_id | Emp_fname | Emp_lname | Emp_Position         | Emp_salary | Emp_JoinDate |
++--------+---------+-----------+-----------+----------------------+------------+--------------+
+|      7 |   10005 | Chris     | Brown     | Product Owner        |      95000 | 2016-09-25   |
+|      3 |   10003 | Michael   | Johnson   | Project Manager      |      90000 | 2018-11-05   |
+|      5 |   10004 | David     | Wilson    | DevOps Engineer      |      85000 | 2017-08-18   |
+|      9 |   10004 | James     | Anderson  | System Administrator |      78000 | 2019-07-14   |
+|      1 |   10001 | John      | Doe       | Software Engineer    |      75000 | 2020-06-15   |
+|      4 |   10001 | Emily     | Davis     | UX Designer          |      72000 | 2021-01-30   |
+|     10 |   10001 | Laura     | Thomas    | Frontend Developer   |      72000 | 2021-03-09   |
+|      8 |   10003 | Amanda    | Taylor    | Business Analyst     |      70000 | 2020-12-01   |
+|      2 |   10002 | Jane      | Smith     | Data Analyst         |      68000 | 2019-03-22   |
+|      6 |   10002 | Sarah     | Miller    | QA Tester            |      63000 | 2022-04-12   |
++--------+---------+-----------+-----------+----------------------+------------+--------------+
+
+mysql> SELECT * FROM Employee
+ORDER BY Emp_id
+LIMIT 3 OFFSET 3;
+
++--------+---------+-----------+-----------+-----------------+------------+--------------+
+| Emp_id | Dept_id | Emp_fname | Emp_lname | Emp_Position    | Emp_salary | Emp_JoinDate |
++--------+---------+-----------+-----------+-----------------+------------+--------------+
+|      4 |   10001 | Emily     | Davis     | UX Designer     |      72000 | 2021-01-30   |
+|      5 |   10004 | David     | Wilson    | DevOps Engineer |      85000 | 2017-08-18   |
+|      6 |   10002 | Sarah     | Miller    | QA Tester       |      63000 | 2022-04-12   |
++--------+---------+-----------+-----------+-----------------+------------+--------------+
