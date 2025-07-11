@@ -167,8 +167,6 @@ mysql> select Student.s_name, Training.T_year from  Student, Training where Stud
 +--------+--------+
 7 rows in set (0.06 sec)
 
--- Find the student’s name having maximum CGPA score and names of students having CGPA score between 7 to 9.
-
 -- Display all Student name with T_id with decreasing order of Fees
 mysql> select Student.s_name, Training.T_Fee from  Student, Training where Student.T_id = Training.T_id order by Training.T_Fee desc;
 +--------+---------+
