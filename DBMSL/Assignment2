@@ -28,15 +28,6 @@ CREATE TABLE Training(
 );
 
 -- Insert at least 10 records in the Student table and insert other tables accordingly.
--- Display all students details with branch ‘Computer ‘and ‘It’ and student name starting with ‘a' or 'd'.
--- list the number of different companies. (use of distinct)
--- Give 15% increase in fee of the Training whose joining year is 2019.
--- Delete Student details having CGPA score less than 7.
--- Find the names of companies belonging to Pune or Mumbai
--- Find the student’s name who joined training in 1-1-2019 as well as in 1-1-2021
--- Find the student’s name having maximum CGPA score and names of students having CGPA score between 7 to 9.
--- Display all Student name with T_id with decreasing order of Fees
--- Display Pcompany_name, S_name, location and Package with Package 30K, 40K and 50k
 INSERT INTO PlacementDrive (Drive_id, Pcompany_name, package, P_location) VALUES
 (1, 'TCS', '30000', 'Pune'),
 (2, 'Infosys', '40000', 'Mumbai'),
@@ -68,7 +59,7 @@ INSERT INTO Student (s_id, Drive_id, T_id, s_name, CGPA, s_branch, s_dob) VALUES
 Query OK, 10 rows affected (0.10 sec)
 Records: 10  Duplicates: 0  Warnings: 0
 
-
+-- Display all students details with branch ‘Computer ‘and ‘It’ and student name starting with ‘a' or 'd'.
 mysql> select * from Student where s_branch in('Computer', 'IT') and s_name LIKE 'a%' OR s_name LIKE 's%';
 +------+----------+------+--------+------+----------+------------+
 | s_id | Drive_id | T_id | s_name | CGPA | s_branch | s_dob      |
@@ -81,7 +72,7 @@ mysql> select * from Student where s_branch in('Computer', 'IT') and s_name LIKE
 +------+----------+------+--------+------+----------+------------+
 5 rows in set (0.00 sec)
 
-
+-- list the number of different companies. (use of distinct)
 mysql>  select distinct Pcompany_name from PlacementDrive;
 +---------------+
 | Pcompany_name |
@@ -105,7 +96,7 @@ mysql>  Select T_Fee,T_year from Training where T_year = '2019';
 +-------+--------+
 3 rows in set (0.00 sec)
 
-
+-- Give 15% increase in fee of the Training whose joining year is 2019.
 
 mysql>  UPDATE Training set T_Fee = T_Fee + T_Fee*0.15 where T_year = '2019';
 Query OK, 3 rows affected (0.03 sec)
@@ -121,14 +112,19 @@ mysql>  Select T_Fee,T_year from Training where T_year = '2019';
 +---------+--------+
 3 rows in set (0.01 sec)
 
+-- Delete Student details having CGPA score less than 7.
 
 mysql>  select s_name, CGPA from Student where CGPA < 7.0;
 +--------+------+
 | s_name | CGPA |
 +--------+------+
 | Divya  | 6.90 |
-| Sneha  | 6.50 |Display Pcompany_name, S_name, location and Package with Package 30K, 40K
-and 50k
+| Sneha  | 6.50 |
++--------+------+
+
+mysql>  DELETE from Student Where CGPA < 7.0;
+Query OK, 2 rows affected (0.03 sec)
+Rows matched: 2  Changed: 2  Warnings: 0
 
 mysql>  select s_name, CGPA from Student;
 +--------+------+
@@ -145,8 +141,7 @@ mysql>  select s_name, CGPA from Student;
 +--------+------+
 8 rows in set (0.00 sec)
 
-
-
+-- Find the names of companies belonging to Pune or Mumbai
 mysql>  select Pcompany_name, P_location from PlacementDrive where P_location in('Pune', 'Mumbai');
 +---------------+------------+
 | Pcompany_name | P_location |
@@ -157,11 +152,7 @@ mysql>  select Pcompany_name, P_location from PlacementDrive where P_location in
 +---------------+------------+
 3 rows in set (0.00 sec)
 
-
- 
-mysql>  select s_name, CGPA from StudeDisplay Pcompany_name, S_name, location and Package with Package 30K, 40K
-and 50k
-
+-- Find the student’s name who joined training in 1-1-2019 as well as in 1-1-2021
 mysql> select Student.s_name, Training.T_year from  Student, Training where Student.T_id = Training.T_id and T_year in ('2019', '2021');
 +--------+--------+
 | s_name | T_year |
@@ -176,6 +167,9 @@ mysql> select Student.s_name, Training.T_year from  Student, Training where Stud
 +--------+--------+
 7 rows in set (0.06 sec)
 
+-- Find the student’s name having maximum CGPA score and names of students having CGPA score between 7 to 9.
+
+-- Display all Student name with T_id with decreasing order of Fees
 mysql> select Student.s_name, Training.T_Fee from  Student, Training where Student.T_id = Training.T_id order by Training.T_Fee desc;
 +--------+---------+
 | s_name | T_Fee   |
@@ -191,6 +185,8 @@ mysql> select Student.s_name, Training.T_Fee from  Student, Training where Stude
 +--------+---------+
 8 rows in set (0.00 sec)
 
+
+-- Display Pcompany_name, S_name, location and Package with Package 30K, 40K and 50k
 mysql> select PlacementDrive.Pcompany_name, Student.s_name, PlacementDrive.package, PlacementDrive.P_location from  Student, PlacementDrive where Student.Drive_id = PlacementDrive.Drive_id and PlacementDrive.package in (30000, 40000, 50000);
 +---------------+--------+---------+------------+
 | Pcompany_name | s_name | package | P_location |
@@ -202,4 +198,7 @@ mysql> select PlacementDrive.Pcompany_name, Student.s_name, PlacementDrive.packa
 | Infosys       | David  | 40000   | Mumbai     |
 +---------------+--------+---------+------------+
 5 rows in set (0.00 sec)
+
+
+
 
