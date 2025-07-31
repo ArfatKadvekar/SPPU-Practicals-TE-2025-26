@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 int isPowerOfTwo(int n)
 {
@@ -100,6 +101,24 @@ void processCharacterEncode(char ch, int allHamming[][12], int *hammingCount)
     printf("\n");
 }
 
+void induceRandomError(int allHamming[][12], int hammingCount)
+{
+    if (hammingCount == 0) return;
+    
+    int charIndex = rand() % hammingCount;
+    
+    int bitIndex = rand() % 12;
+    
+    printf("\033[41m INDUCING ERROR: \033[0m");
+    printf("Corrupting bit %d in character %d\n", bitIndex + 1, charIndex + 1);
+    printf("Original bit value: %d -> ", allHamming[charIndex][bitIndex]);
+    
+    allHamming[charIndex][bitIndex] = 1 - allHamming[charIndex][bitIndex];
+    
+    printf("Corrupted bit value: %d\n", allHamming[charIndex][bitIndex]);
+    printf("\033[43m Bit corruption complete! \033[0m\n\n");
+}
+
 int detectAndCorrectError(int hamming[], int hammingSize)
 {
     int parityBits = calculateParityBits(8);
@@ -130,7 +149,6 @@ void extractDataBits(int hamming[], int hammingSize, int dataBits[], int dataSiz
     {
         if (!isPowerOfTwo(i))
         {
-
             dataBits[dataIndex++] = hamming[i - 1];
         }
     }
@@ -138,7 +156,6 @@ void extractDataBits(int hamming[], int hammingSize, int dataBits[], int dataSiz
 
 char binaryToChar(int binary[], int size)
 {
-
     char ch = 0;
     for (int i = 0; i < size; i++)
     {
@@ -152,7 +169,6 @@ char processCharacterDecode(int hamming[], int hammingSize)
     printf("\033[43m Received \033[0m");
     for (int i = 0; i < hammingSize; i++)
     {
-
         if (isPowerOfTwo(i + 1))
         {
             printf("\033[45m%d\033[0m", hamming[i]); // Parity bits in magenta
@@ -166,14 +182,13 @@ char processCharacterDecode(int hamming[], int hammingSize)
     int errorPosition = detectAndCorrectError(hamming, hammingSize);
     if (errorPosition == 0)
     {
-
         printf(" -> \033[42m No error detected \033[0m");
     }
     else
     {
-
         printf(" -> \033[41m Error detected at position %d, correcting... \033[0m", errorPosition);
         hamming[errorPosition - 1] = 1 - hamming[errorPosition - 1];
+        printf("\033[42m Bit corrected! \033[0m");
     }
 
     int dataBits[8];
@@ -187,10 +202,8 @@ char processCharacterDecode(int hamming[], int hammingSize)
     printf(" -> \033[42m ASCII: %d \033[0m -> ", (int)ch);
     if (ch == ' ')
         printf("\033[41m Character: [space] \033[0m");
-
     else if (ch >= 32 && ch <= 126)
         printf("\033[41m Character: %c \033[0m", ch);
-
     else
         printf("\033[41m Character: [non-printable] \033[0m");
 
@@ -200,14 +213,17 @@ char processCharacterDecode(int hamming[], int hammingSize)
 
 int main()
 {
-
+    srand(time(NULL));
+    
     printf("Enter the Text: ");
     char str[100];
     fgets(str, sizeof(str), stdin);
-    // Remove newline if present
+
     str[strcspn(str, "\n")] = 0;
+    
     int allHamming[100][12];
     int hammingCount = 0;
+    
     printf("\n========== ENCODING ==========\n\n");
     for (int i = 0; str[i] != '\0'; i++)
     {
@@ -216,6 +232,17 @@ int main()
             continue;
         processCharacterEncode(ch, allHamming, &hammingCount);
     }
+    
+    printf("\n\033[43m Do you want to induce an error? (y/n): \033[0m");
+    char choice;
+    scanf(" %c", &choice);
+    
+    if (choice == 'y' || choice == 'Y')
+    {
+        printf("\n========== ERROR INDUCTION ==========\n\n");
+        induceRandomError(allHamming, hammingCount);
+    }
+    
     printf("\n========== DECODING ==========\n\n");
     char decodedText[100];
     for (int i = 0; i < hammingCount; i++)
@@ -224,6 +251,7 @@ int main()
         decodedText[i] = ch;
     }
     decodedText[hammingCount] = '\0';
-    printf("\n\033[47mDECODED TEXT -> %s \033[0m \n", decodedText);
+    
+    printf("\n\033[47m DECODED TEXT -> %s \033[0m\n", decodedText);
     return 0;
 }
