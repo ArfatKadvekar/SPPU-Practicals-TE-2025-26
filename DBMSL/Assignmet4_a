@@ -1,0 +1,439 @@
+CREATE TABLE Borrower (
+        Roll_no INT PRIMARY KEY,
+        Name VARCHAR(100),
+        DateofIssue DATE,
+        NameofBook VARCHAR(100),
+        Status ENUM('Issued', 'Returned') DEFAULT 'Issued'
+    );
+
+CREATE TABLE Fine (
+        Roll_no INT,
+        Date DATE,
+        Amt DECIMAL(10, 2)
+    );
+
+TRUNCATE TABLE Borrower;
+TRUNCATE TABLE Fine;
+
+INSERT INTO Borrower (Roll_no, Name, DateofIssue, NameofBook, Status)
+VALUES 
+(1, 'John Doe', '2025-07-20', 'Computer Networking', 'Issued'),
+(2, 'Jane Smith', '2025-07-10', 'Database Systems', 'Issued'),
+(3, 'Alice Johnson', '2025-07-01', 'Operating Systems', 'Issued'),
+(4, 'Bob Brown', '2025-06-01', 'Data Structures', 'Issued'),
+(5, 'Charlie White', '2025-07-15', 'Software Engineering', 'Returned'),
+(6, 'Charlie White', '2025-07-18', 'Artificial Intelligence', 'Issued');
+
+
+
+DELIMITER #
+
+CREATE PROCEDURE ReturnBook(
+    IN in_Roll_no INT,
+    IN in_BookName VARCHAR(100)
+)
+BEGIN
+    DECLARE v_IssueDate DATE;
+    DECLARE v_DaysLate INT DEFAULT 0;
+    DECLARE v_FineAmt DECIMAL(10,2) DEFAULT 0.00;
+    DECLARE v_Count INT DEFAULT 0;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SELECT 'An unexpected error occurred. Transaction rolled back.' AS Message;
+    END;
+
+    START TRANSACTION;
+
+    proc_block: BEGIN
+
+        SELECT COUNT(*) INTO v_Count
+        FROM Borrower
+        WHERE Roll_no = in_Roll_no;
+
+        IF v_Count = 0 THEN
+            ROLLBACK;
+            SELECT CONCAT('Roll number ', in_Roll_no, ' not found.') AS Message;
+            LEAVE proc_block;
+        END IF;
+
+        SELECT DateofIssue
+        INTO v_IssueDate
+        FROM Borrower
+        WHERE Roll_no = in_Roll_no
+          AND NameofBook = in_BookName
+          AND Status = 'Issued';
+
+        IF v_IssueDate IS NULL THEN
+            ROLLBACK;
+            SELECT 'No matching issued book found for this roll number.' AS Message;
+            LEAVE proc_block;
+        END IF;
+
+        SET v_DaysLate = DATEDIFF(CURDATE(), v_IssueDate);
+        IF v_DaysLate <= 15 THEN
+            SET v_FineAmt = 0;
+        ELSEIF v_DaysLate <= 30 THEN
+            SET v_FineAmt = v_DaysLate * 5;
+        ELSE
+            SET v_FineAmt = v_DaysLate * 50;
+        END IF;
+
+        UPDATE Borrower
+        SET Status = 'Returned'
+        WHERE Roll_no = in_Roll_no
+          AND NameofBook = in_BookName
+          AND Status = 'Issued';
+
+        IF v_FineAmt > 0 THEN
+            INSERT INTO Fine (Roll_no, Date, Amt)
+            VALUES (in_Roll_no, CURDATE(), v_FineAmt);
+        END IF;
+
+        COMMIT;
+
+        IF v_FineAmt > 0 THEN
+            SELECT CONCAT('Book returned with fine: ₹', v_FineAmt) AS Message;
+        ELSE
+            SELECT 'Book returned successfully. No fine.' AS Message;
+        END IF;
+
+    END proc_block;
+
+END
+#
+DELIMITER ;
+
+-- No fine (12 days late)
+mysql> CALL ReturnBook(1, 'Computer Networking');
++--------------------------------------+
+| Message                              |
++--------------------------------------+
+| Book returned successfully. No fine. |
++--------------------------------------+
+1 row in set (0.03 sec)
+
+Query OK, 3 rows affected (0.03 sec)
+
+mysql> SELECT * FROM Fine;
+Empty set (0.00 sec)
+
+mysql> SELECT * FROM Borrower;
++---------+---------------+-------------+-------------------------+----------+
+| Roll_no | Name          | DateofIssue | NameofBook              | Status   |
++---------+---------------+-------------+-------------------------+----------+
+|       1 | John Doe      | 2025-07-20  | Computer Networking     | Returned |
+|       2 | Jane Smith    | 2025-07-10  | Database Systems        | Issued   |
+|       3 | Alice Johnson | 2025-07-01  | Operating Systems       | Issued   |
+|       4 | Bob Brown     | 2025-06-01  | Data Structures         | Issued   |
+|       5 | Charlie White | 2025-07-15  | Software Engineering    | Returned |
+|       6 | Charlie White | 2025-07-18  | Artificial Intelligence | Issued   |
++---------+---------------+-------------+-------------------------+----------+
+
+
+-- Fine: 22 days * ₹5 = ₹110
+mysql> CALL ReturnBook(2, 'Database Systems');
++------------------------------------+
+| Message                            |
++------------------------------------+
+| Book returned with fine: ₹110.00   |
++------------------------------------+
+1 row in set (0.03 sec)
+
+Query OK, 4 rows affected (0.03 sec)
+
+mysql> SELECT * FROM Borrower;
++---------+---------------+-------------+-------------------------+----------+
+| Roll_no | Name          | DateofIssue | NameofBook              | Status   |
++---------+---------------+-------------+-------------------------+----------+
+|       1 | John Doe      | 2025-07-20  | Computer Networking     | Returned |
+|       2 | Jane Smith    | 2025-07-10  | Database Systems        | Returned |
+|       3 | Alice Johnson | 2025-07-01  | Operating Systems       | Issued   |
+|       4 | Bob Brown     | 2025-06-01  | Data Structures         | Issued   |
+|       5 | Charlie White | 2025-07-15  | Software Engineering    | Returned |
+|       6 | Charlie White | 2025-07-18  | Artificial Intelligence | Issued   |
++---------+---------------+-------------+-------------------------+----------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Fine;
++---------+------------+--------+
+| Roll_no | Date       | Amt    |
++---------+------------+--------+
+|       2 | 2025-08-01 | 110.00 |
++---------+------------+--------+
+1 row in set (0.00 sec)
+
+
+-- Fine: 31 days * ₹50 = ₹1550
+mysql> CALL ReturnBook(3, 'Operating Systems');
++-------------------------------------+
+| Message                             |
++-------------------------------------+
+| Book returned with fine: ₹1550.00   |
++-------------------------------------+
+1 row in set (0.04 sec)
+
+Query OK, 4 rows affected (0.04 sec)
+
+mysql> SELECT * FROM Borrower;
++---------+---------------+-------------+-------------------------+----------+
+| Roll_no | Name          | DateofIssue | NameofBook              | Status   |
++---------+---------------+-------------+-------------------------+----------+
+|       1 | John Doe      | 2025-07-20  | Computer Networking     | Returned |
+|       2 | Jane Smith    | 2025-07-10  | Database Systems        | Returned |
+|       3 | Alice Johnson | 2025-07-01  | Operating Systems       | Returned |
+|       4 | Bob Brown     | 2025-06-01  | Data Structures         | Issued   |
+|       5 | Charlie White | 2025-07-15  | Software Engineering    | Returned |
+|       6 | Charlie White | 2025-07-18  | Artificial Intelligence | Issued   |
++---------+---------------+-------------+-------------------------+----------+
+6 rows in set (0.07 sec)
+
+mysql> SELECT * FROM Fine;
++---------+------------+---------+
+| Roll_no | Date       | Amt     |
++---------+------------+---------+
+|       2 | 2025-08-01 |  110.00 |
+|       3 | 2025-08-01 | 1550.00 |
++---------+------------+---------+
+2 rows in set (0.00 sec)
+
+-- Fine: 61 days * ₹50 = ₹3050
+mysql> CALL ReturnBook(4, 'Data Structures');
++-------------------------------------+
+| Message                             |
++-------------------------------------+
+| Book returned with fine: ₹3050.00   |
++-------------------------------------+
+1 row in set (0.03 sec)
+
+Query OK, 4 rows affected (0.03 sec)
+
+mysql> SELECT * FROM Borrower;
++---------+---------------+-------------+-------------------------+----------+
+| Roll_no | Name          | DateofIssue | NameofBook              | Status   |
++---------+---------------+-------------+-------------------------+----------+
+|       1 | John Doe      | 2025-07-20  | Computer Networking     | Returned |
+|       2 | Jane Smith    | 2025-07-10  | Database Systems        | Returned |
+|       3 | Alice Johnson | 2025-07-01  | Operating Systems       | Returned |
+|       4 | Bob Brown     | 2025-06-01  | Data Structures         | Returned |
+|       5 | Charlie White | 2025-07-15  | Software Engineering    | Returned |
+|       6 | Charlie White | 2025-07-18  | Artificial Intelligence | Issued   |
++---------+---------------+-------------+-------------------------+----------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Fine;
++---------+------------+---------+
+| Roll_no | Date       | Amt     |
++---------+------------+---------+
+|       2 | 2025-08-01 |  110.00 |
+|       3 | 2025-08-01 | 1550.00 |
+|       4 | 2025-08-01 | 3050.00 |
++---------+------------+---------+
+3 rows in set (0.00 sec)
+
+-- Already returned (should fail)
+mysql> CALL ReturnBook(5, 'Software Engineering');
++-----------------------------------------------------+
+| Message                                             |
++-----------------------------------------------------+
+| No matching issued book found for this roll number. |
++-----------------------------------------------------+
+1 row in set (0.01 sec)
+
+Query OK, 1 row affected, 1 warning (0.01 sec)
+
+mysql> SELECT * FROM Borrower;
++---------+---------------+-------------+-------------------------+----------+
+| Roll_no | Name          | DateofIssue | NameofBook              | Status   |
++---------+---------------+-------------+-------------------------+----------+
+|       1 | John Doe      | 2025-07-20  | Computer Networking     | Returned |
+|       2 | Jane Smith    | 2025-07-10  | Database Systems        | Returned |
+|       3 | Alice Johnson | 2025-07-01  | Operating Systems       | Returned |
+|       4 | Bob Brown     | 2025-06-01  | Data Structures         | Returned |
+|       5 | Charlie White | 2025-07-15  | Software Engineering    | Returned |
+|       6 | Charlie White | 2025-07-18  | Artificial Intelligence | Issued   |
++---------+---------------+-------------+-------------------------+----------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Fine;
++---------+------------+---------+
+| Roll_no | Date       | Amt     |
++---------+------------+---------+
+|       2 | 2025-08-01 |  110.00 |
+|       3 | 2025-08-01 | 1550.00 |
+|       4 | 2025-08-01 | 3050.00 |
++---------+------------+---------+
+3 rows in set (0.00 sec)
+
+-- Valid return (13 days, no fine)
+mysql> CALL ReturnBook(6, 'Artificial Intelligence');
++--------------------------------------+
+| Message                              |
++--------------------------------------+
+| Book returned successfully. No fine. |
++--------------------------------------+
+1 row in set (0.03 sec)
+
+Query OK, 3 rows affected (0.03 sec)
+
+mysql> SELECT * FROM Borrower;
++---------+---------------+-------------+-------------------------+----------+
+| Roll_no | Name          | DateofIssue | NameofBook              | Status   |
++---------+---------------+-------------+-------------------------+----------+
+|       1 | John Doe      | 2025-07-20  | Computer Networking     | Returned |
+|       2 | Jane Smith    | 2025-07-10  | Database Systems        | Returned |
+|       3 | Alice Johnson | 2025-07-01  | Operating Systems       | Returned |
+|       4 | Bob Brown     | 2025-06-01  | Data Structures         | Returned |
+|       5 | Charlie White | 2025-07-15  | Software Engineering    | Returned |
+|       6 | Charlie White | 2025-07-18  | Artificial Intelligence | Returned |
++---------+---------------+-------------+-------------------------+----------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Fine;
++---------+------------+---------+
+| Roll_no | Date       | Amt     |
++---------+------------+---------+
+|       2 | 2025-08-01 |  110.00 |
+|       3 | 2025-08-01 | 1550.00 |
+|       4 | 2025-08-01 | 3050.00 |
++---------+------------+---------+
+3 rows in set (0.00 sec)
+
+-- Invalid book name (case-sensitive mismatch)
+mysql> CALL ReturnBook(2, 'database systems');
++-----------------------------------------------------+
+| Message                                             |
++-----------------------------------------------------+
+| No matching issued book found for this roll number. |
++-----------------------------------------------------+
+1 row in set (0.00 sec)
+
+Query OK, 1 row affected, 1 warning (0.00 sec)
+
+mysql> SELECT * FROM Borrower;
++---------+---------------+-------------+-------------------------+----------+
+| Roll_no | Name          | DateofIssue | NameofBook              | Status   |
++---------+---------------+-------------+-------------------------+----------+
+|       1 | John Doe      | 2025-07-20  | Computer Networking     | Returned |
+|       2 | Jane Smith    | 2025-07-10  | Database Systems        | Returned |
+|       3 | Alice Johnson | 2025-07-01  | Operating Systems       | Returned |
+|       4 | Bob Brown     | 2025-06-01  | Data Structures         | Returned |
+|       5 | Charlie White | 2025-07-15  | Software Engineering    | Returned |
+|       6 | Charlie White | 2025-07-18  | Artificial Intelligence | Returned |
++---------+---------------+-------------+-------------------------+----------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Fine;
++---------+------------+---------+
+| Roll_no | Date       | Amt     |
++---------+------------+---------+
+|       2 | 2025-08-01 |  110.00 |
+|       3 | 2025-08-01 | 1550.00 |
+|       4 | 2025-08-01 | 3050.00 |
++---------+------------+---------+
+3 rows in set (0.00 sec)
+
+-- Non-existent roll number
+mysql> CALL ReturnBook(99, 'Any Book');
++---------------------------+
+| Message                   |
++---------------------------+
+| Roll number 99 not found. |
++---------------------------+
+1 row in set (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT * FROM Borrower;
++---------+---------------+-------------+-------------------------+----------+
+| Roll_no | Name          | DateofIssue | NameofBook              | Status   |
++---------+---------------+-------------+-------------------------+----------+
+|       1 | John Doe      | 2025-07-20  | Computer Networking     | Returned |
+|       2 | Jane Smith    | 2025-07-10  | Database Systems        | Returned |
+|       3 | Alice Johnson | 2025-07-01  | Operating Systems       | Returned |
+|       4 | Bob Brown     | 2025-06-01  | Data Structures         | Returned |
+|       5 | Charlie White | 2025-07-15  | Software Engineering    | Returned |
+|       6 | Charlie White | 2025-07-18  | Artificial Intelligence | Returned |
++---------+---------------+-------------+-------------------------+----------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Fine;
++---------+------------+---------+
+| Roll_no | Date       | Amt     |
++---------+------------+---------+
+|       2 | 2025-08-01 |  110.00 |
+|       3 | 2025-08-01 | 1550.00 |
+|       4 | 2025-08-01 | 3050.00 |
++---------+------------+---------+
+3 rows in set (0.00 sec)
+
+-- Non-existent book title for existing user
+mysql> CALL ReturnBook(1, 'Wrong Book Title');
++-----------------------------------------------------+
+| Message                                             |
++-----------------------------------------------------+
+| No matching issued book found for this roll number. |
++-----------------------------------------------------+
+1 row in set (0.01 sec)
+
+Query OK, 1 row affected, 1 warning (0.01 sec)
+
+mysql> SELECT * FROM Borrower;
++---------+---------------+-------------+-------------------------+----------+
+| Roll_no | Name          | DateofIssue | NameofBook              | Status   |
++---------+---------------+-------------+-------------------------+----------+
+|       1 | John Doe      | 2025-07-20  | Computer Networking     | Returned |
+|       2 | Jane Smith    | 2025-07-10  | Database Systems        | Returned |
+|       3 | Alice Johnson | 2025-07-01  | Operating Systems       | Returned |
+|       4 | Bob Brown     | 2025-06-01  | Data Structures         | Returned |
+|       5 | Charlie White | 2025-07-15  | Software Engineering    | Returned |
+|       6 | Charlie White | 2025-07-18  | Artificial Intelligence | Returned |
++---------+---------------+-------------+-------------------------+----------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Fine;
++---------+------------+---------+
+| Roll_no | Date       | Amt     |
++---------+------------+---------+
+|       2 | 2025-08-01 |  110.00 |
+|       3 | 2025-08-01 | 1550.00 |
+|       4 | 2025-08-01 | 3050.00 |
++---------+------------+---------+
+3 rows in set (0.00 sec)
+
+-- NULL input (optional, to test SQL exception handling)
+mysql> CALL ReturnBook(NULL, NULL);
++---------+
+| Message |
++---------+
+| NULL    |
++---------+
+1 row in set (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT * FROM Borrower;
++---------+---------------+-------------+-------------------------+----------+
+| Roll_no | Name          | DateofIssue | NameofBook              | Status   |
++---------+---------------+-------------+-------------------------+----------+
+|       1 | John Doe      | 2025-07-20  | Computer Networking     | Returned |
+|       2 | Jane Smith    | 2025-07-10  | Database Systems        | Returned |
+|       3 | Alice Johnson | 2025-07-01  | Operating Systems       | Returned |
+|       4 | Bob Brown     | 2025-06-01  | Data Structures         | Returned |
+|       5 | Charlie White | 2025-07-15  | Software Engineering    | Returned |
+|       6 | Charlie White | 2025-07-18  | Artificial Intelligence | Returned |
++---------+---------------+-------------+-------------------------+----------+
+6 rows in set (0.01 sec)
+
+mysql> SELECT * FROM Fine;
++---------+------------+---------+
+| Roll_no | Date       | Amt     |
++---------+------------+---------+
+|       2 | 2025-08-01 |  110.00 |
+|       3 | 2025-08-01 | 1550.00 |
+|       4 | 2025-08-01 | 3050.00 |
++---------+------------+---------+
+3 rows in set (0.00 sec)
+
+
