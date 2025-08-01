@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-int isPowerOfTwo(int n)
+int isPowerOfTwo(int n) //Helper function
 {
     return (n > 0) && (n & (n - 1)) == 0;
 }
@@ -85,7 +85,7 @@ void processCharacterEncode(char ch, int allHamming[][12], int *hammingCount)
     }
     (*hammingCount)++;
 
-    // Display Hamming code
+    // Displaying Hamming code using color codes
     printf(" -> \033[43m Hamming Code (%d bits): \033[0m", hammingSize);
     for (int i = 0; i < hammingSize; i++)
     {
@@ -110,13 +110,13 @@ void induceRandomError(int allHamming[][12], int hammingCount)
     int bitIndex = rand() % 12;
     
     printf("\033[41m INDUCING ERROR: \033[0m");
-    printf("Corrupting bit %d in character %d\n", bitIndex + 1, charIndex + 1);
+    printf("\nCorrupting bit %d in character %d\n", bitIndex + 1, charIndex + 1);
     printf("Original bit value: %d -> ", allHamming[charIndex][bitIndex]);
     
     allHamming[charIndex][bitIndex] = 1 - allHamming[charIndex][bitIndex];
     
     printf("Corrupted bit value: %d\n", allHamming[charIndex][bitIndex]);
-    printf("\033[43m Bit corruption complete! \033[0m\n\n");
+    printf("\033[41m Bit corruption complete! \033[0m\n\n");
 }
 
 int detectAndCorrectError(int hamming[], int hammingSize)
@@ -223,7 +223,7 @@ int main()
     
     int allHamming[100][12];
     int hammingCount = 0;
-    
+    printf("\n========== SENDER SIDE==========\n\n");
     printf("\n========== ENCODING ==========\n\n");
     for (int i = 0; str[i] != '\0'; i++)
     {
@@ -233,7 +233,7 @@ int main()
         processCharacterEncode(ch, allHamming, &hammingCount);
     }
     
-    printf("\n\033[43m Do you want to induce an error? (y/n): \033[0m");
+    printf("\nDo you want to induce an error? (y/n): ");
     char choice;
     scanf(" %c", &choice);
     
@@ -243,6 +243,7 @@ int main()
         induceRandomError(allHamming, hammingCount);
     }
     
+    printf("\n========== RECIEVER SIDE==========\n\n");
     printf("\n========== DECODING ==========\n\n");
     char decodedText[100];
     for (int i = 0; i < hammingCount; i++)
@@ -252,6 +253,6 @@ int main()
     }
     decodedText[hammingCount] = '\0';
     
-    printf("\n\033[47m DECODED TEXT -> %s \033[0m\n", decodedText);
+    printf("\n\033[42m DECODED TEXT -> %s \033[0m\n", decodedText);
     return 0;
 }
