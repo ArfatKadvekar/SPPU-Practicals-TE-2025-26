@@ -1,0 +1,12 @@
+MACRO INVALID &A, &B=10, &C
+    MOVER &A, &B
+    ADD &A, &C
+MEND
+
+START 700
+    INVALID X, Y, Z
+    STOP
+X DS 1
+Y DS 1
+Z DS 1
+END

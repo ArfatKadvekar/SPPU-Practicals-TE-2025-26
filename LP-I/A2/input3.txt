@@ -1,0 +1,15 @@
+MACRO ALTER &P1, &K1=VAL1, &P2, &K2=VAL2, &P3
+    MOVER &P1, &K1
+    ADD &P2, &K2
+    SUB &P3, ='1'
+MEND
+
+START 400
+    ALTER A, B, C, D, E
+    STOP
+A DS 1
+B DS 1
+C DS 1
+D DS 1
+E DS 1
+END
