@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+"""
+Simple Remote Software Installer
+Uses basic SSH commands to check, uninstall, and install software
+"""
+
+import subprocess
+import sys
+import argparse
+
+def run_ssh_command(host, user, command, password=None, key_file=None):
+    """Execute SSH command and return output"""
+    if key_file:
+        ssh_cmd = f"ssh -i {key_file} {user}@{host} '{command}'"
+    else:
+        ssh_cmd = f"ssh {user}@{host} '{command}'"
+    
+    try:
+        result = subprocess.run(ssh_cmd, shell=True, capture_output=True, text=True)
+        return result.returncode, result.stdout.strip(), result.stderr.strip()
+    except Exception as e:
+        return -1, "", str(e)
+
+def check_software_exists(host, user, software, key_file=None):
+    """Check if software is installed"""
+    commands = [
+        f"which {software}",
+        f"command -v {software}",
+        f"dpkg -l | grep -i {software}",  # Debian/Ubuntu
+        f"rpm -qa | grep -i {software}",  # RedHat/CentOS
+        f"pacman -Q {software}"          # Arch
+    ]
+    
+    for cmd in commands:
+        exit_code, stdout, stderr = run_ssh_command(host, user, cmd, key_file=key_file)
+        if exit_code == 0 and stdout:
+            print(f"✓ Found {software}: {stdout.split()[0] if stdout else 'installed'}")
+            return True
+    
+    print(f"✗ {software} not found")
+    return False
+
+def uninstall_software(host, user, software, key_file=None):
+    """Uninstall software using appropriate package manager"""
+    print(f"Uninstalling {software}...")
+    
+    # Try different uninstall commands
+    uninstall_commands = [
+        f"sudo apt-get remove -y {software}",      # Debian/Ubuntu
+        f"sudo yum remove -y {software}",          # CentOS/RHEL
+        f"sudo dnf remove -y {software}",          # Fedora
+        f"sudo zypper remove -y {software}",       # openSUSE
+        f"sudo pacman -R --noconfirm {software}"   # Arch
+    ]
+    
+    for cmd in uninstall_commands:
+        exit_code, stdout, stderr = run_ssh_command(host, user, cmd, key_file=key_file)
+        if exit_code == 0:
+            print(f"✓ Successfully uninstalled {software}")
+            return True
+        elif "command not found" not in stderr.lower():
+            # Package manager exists but uninstall failed
+            print(f"✗ Failed to uninstall {software}: {stderr}")
+            return False
+    
+    print(f"✗ Could not find appropriate package manager to uninstall {software}")
+    return False
+
+def install_software(host, user, software, key_file=None):
+    """Install software using appropriate package manager"""
+    print(f"Installing {software}...")
+    
+    # Try different install commands
+    install_commands = [
+        f"sudo apt-get update && sudo apt-get install -y {software}",  # Debian/Ubuntu
+        f"sudo yum install -y {software}",                            # CentOS/RHEL
+        f"sudo dnf install -y {software}",                            # Fedora
+        f"sudo zypper install -y {software}",                         # openSUSE
+        f"sudo pacman -S --noconfirm {software}"                      # Arch
+    ]
+    
+    for cmd in install_commands:
+        exit_code, stdout, stderr = run_ssh_command(host, user, cmd, key_file=key_file)
+        if exit_code == 0:
+            print(f"✓ Successfully installed {software}")
+            return True
+        elif "command not found" not in stderr.lower():
+            # Package manager exists but install failed
+            print(f"✗ Failed to install {software}: {stderr}")
+            return False
+    
+    print(f"✗ Could not find appropriate package manager to install {software}")
+    return False
+
+def main():
+    parser = argparse.ArgumentParser(description="Simple remote software installer via SSH")
+    parser.add_argument("host", help="Remote host (user@host or just host)")
+    parser.add_argument("software", help="Software package name")
+    parser.add_argument("-u", "--user", help="SSH username (if not in host)")
+    parser.add_argument("-k", "--key", help="SSH private key file")
+    parser.add_argument("--skip-uninstall", action="store_true", help="Skip uninstall if exists")
+    
+    args = parser.parse_args()
+    
+    # Parse host and user
+    if "@" in args.host:
+        user, host = args.host.split("@", 1)
+    else:
+        host = args.host
+        user = args.user or input("Enter SSH username: ")
+    
+    print(f"Connecting to {user}@{host}")
+    
+    # Check if software exists
+    software_exists = check_software_exists(host, user, args.software, args.key)
+    
+    # Uninstall if exists and not skipping
+    if software_exists and not args.skip_uninstall:
+        if not uninstall_software(host, user, args.software, args.key):
+            print("Uninstall failed, continuing with installation...")
+    
+    # Install software
+    install_software(host, user, args.software, args.key)
+    
+    # Verify installation
+    print("\nVerifying installation...")
+    if check_software_exists(host, user, args.software, args.key):
+        print(f"✓ {args.software} is now installed and available")
+    else:
+        print(f"✗ Installation verification failed for {args.software}")
+
+if __name__ == "__main__":
+    main()
+
+"""
+Usage examples:
+
+# Basic usage
+python simple_installer.py user@192.168.1.100 nginx
+
+# With SSH key
+python simple_installer.py server.com nginx -u admin -k ~/.ssh/id_rsa
+
+# Skip uninstall step
+python simple_installer.py user@host docker --skip-uninstall
+
+# Direct terminal commands (no script needed):
+ssh user@host "which nginx || echo 'not found'"
+ssh user@host "sudo apt-get remove -y nginx"  
+ssh user@host "sudo apt-get install -y nginx"
+"""
