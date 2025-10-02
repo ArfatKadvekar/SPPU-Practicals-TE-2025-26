@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+import subprocess
+import sys
+
+def ssh_command(host, user, command):
+    """Run SSH command and return result"""
+    cmd = f"ssh {user}@{host} '{command}'"
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    return result.returncode == 0, result.stdout.strip()
+
+def main():
+    if len(sys.argv) != 4:
+        print("Usage: python installer.py <host> <user> <software>")
+        print("Example: python installer.py 192.168.1.100 admin nginx")
+        sys.exit(1)
+    
+    host, user, software = sys.argv[1], sys.argv[2], sys.argv[3]
+    
+    # 1. CHECK if software exists
+    print(f"Checking {software}...")
+    exists, output = ssh_command(host, user, f"which {software}")
+    if exists:
+        print(f"Found: {output}")
+        # 2. UNINSTALL if exists
+        print(f"Uninstalling {software}...")
+        ssh_command(host, user, f"sudo apt-get remove -y {software}")
+    
+    # 3. INSTALL software
+    print(f"Installing {software}...")
+    success, _ = ssh_command(host, user, f"sudo apt-get update && sudo apt-get install -y {software}")
+    
+    if success:
+        print("✓ Installation complete!")
+    else:
+        print("✗ Installation failed!")
+
+if __name__ == "__main__":
+    main()
