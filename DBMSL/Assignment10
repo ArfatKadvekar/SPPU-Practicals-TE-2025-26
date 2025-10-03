@@ -1,0 +1,1402 @@
+create institute dataset and create stuent collection with following keys
+{studId :101,studName:”XYZ”,studAge:23, studBranch:”Computer Engineering”,studCity:"Pune,stuSkills:["C++","Python","MongoDB"]}
+
+
+
+db.student.insertOne({
+    studId: 101,
+    studName: "XYZ",
+    studAge: 23,
+    studBranch: "Computer Engineering",
+    studCity: "Pune",
+    stuSkills: ["C++", "Python", "MongoDB"]
+}),
+db.student.insertMany([
+    {
+        studId: 102,
+        studName: "Aarav",
+        studAge: 21,
+        studBranch: "Computer Engineering",
+        studCity: "mumbai",
+        stuSkills: ["java", "Python", "MongoDB"]
+    },
+    {
+        studId: 103,
+        studName: "Ishaan",
+        studAge: 22,
+        studBranch: "Information Technology",
+        studCity: "Thane",
+        stuSkills: ["C++", "Python", "React"]
+    },
+    {
+        studId: 104,
+        studName: "Rohan",
+        studAge: 24,
+        studBranch: "Electronics and Communication Engineering",
+        studCity: "nagpur",
+        stuSkills: ["C++", "Mysql", "MongoDB"]
+    },
+    {
+        studId: 105,
+        studName: "Arjun",
+        studAge: 22,
+        studBranch: "Computer Engineering",
+        studCity: "Pune",
+        stuSkills: ["Php", "Springboot", "MongoDB"]
+    },
+    {
+        studId: 106,
+        studName: "Devansh",
+        studAge: 22,
+        studBranch: "Civil Engineering",
+        studCity: "Pune",
+        stuSkills: ["C++", "Python", "MongoDB"]
+    },
+    {
+        studId: 107,
+        studName: "Siddharth",
+        studAge: 23,
+        studBranch: "Computer Engineering",
+        studCity: "bengal",
+        stuSkills: ["java", "MERN", "MongoDB"]
+    },
+    {
+        studId: 108,
+        studName: "Kunal",
+        studAge: 23,
+        studBranch: "Civil Engineering",
+        studCity: "baramati",
+        stuSkills: ["C++", "Python", "MongoDB"]
+    },
+    {
+        studId: 109,
+        studName: "Manav",
+        studAge: 24,
+        studBranch: "IT Engineering",
+        studCity: "Pune",
+        stuSkills: ["JAVA", "Python", "MongoDB"]
+    },
+    {
+        studId: 110,
+        studName: "Rahul",
+        studAge: 21,
+        studBranch: "Computer Engineering",
+        studCity: "Pune",
+        stuSkills: ["C++", "Python", "MongoDB"]
+    },
+    {
+        studId: 111,
+        studName: "Aditya",
+        studAge: 22,
+        studBranch: "Mechanical Engineering",
+        studCity: "Delhi",
+        stuSkills: ["C", "Python", "MongoDB"]
+    }
+]);
+
+
+
+// Display all indexes
+te31424_db> db.student.getIndexes()
+[ { v: 2, key: { _id: 1 }, name: '_id_', ns: 'te31424_db.student' } ]
+
+// Search for studName = "XYZ" and show query plan (without index)
+te31424_db> db.student.find({ studName: "XYZ" }).explain("executionStats")
+{
+  queryPlanner: {
+    plannerVersion: 1,
+    namespace: 'te31424_db.student',
+    indexFilterSet: false,
+    parsedQuery: { studName: { '$eq': 'XYZ' } },
+    winningPlan: {
+      stage: 'COLLSCAN',
+      filter: { studName: { '$eq': 'XYZ' } },
+      direction: 'forward'
+    },
+    rejectedPlans: []
+  },
+  executionStats: {
+    executionSuccess: true,
+    nReturned: 1,
+    executionTimeMillis: 0,
+    totalKeysExamined: 0,
+    totalDocsExamined: 11,
+    executionStages: {
+      stage: 'COLLSCAN',
+      filter: { studName: { '$eq': 'XYZ' } },
+      nReturned: 1,
+      executionTimeMillisEstimate: 0,
+      works: 13,
+      advanced: 1,
+      needTime: 11,
+      needYield: 0,
+      saveState: 0,
+      restoreState: 0,
+      isEOF: 1,
+      direction: 'forward',
+      docsExamined: 11
+    }
+  },
+  serverInfo: {
+    host: 'dbsl-21',
+    port: 27017,
+    version: '4.2.13',
+    gitVersion: '82dd40f60c55dae12426c08fd7150d79a0e28e23'
+  },
+  ok: 1
+}
+
+// Create index on studName
+te31424_db> db.student.createIndex({ studName: 1 })
+studName_1
+
+// Search again and show query plan (with index)
+te31424_db> db.student.find({ studName: "XYZ" }).explain("executionStats")
+{
+  queryPlanner: {
+    plannerVersion: 1,
+    namespace: 'te31424_db.student',
+    indexFilterSet: false,
+    parsedQuery: { studName: { '$eq': 'XYZ' } },
+    winningPlan: {
+      stage: 'FETCH',
+      inputStage: {
+        stage: 'IXSCAN',
+        keyPattern: { studName: 1 },
+        indexName: 'studName_1',
+        isMultiKey: false,
+        multiKeyPaths: { studName: [] },
+        isUnique: false,
+        isSparse: false,
+        isPartial: false,
+        indexVersion: 2,
+        direction: 'forward',
+        indexBounds: { studName: [ '["XYZ", "XYZ"]' ] }
+      }
+    },
+    rejectedPlans: []
+  },
+  executionStats: {
+    executionSuccess: true,
+    nReturned: 1,
+    executionTimeMillis: 0,
+    totalKeysExamined: 1,
+    totalDocsExamined: 1,
+    executionStages: {
+      stage: 'FETCH',
+      nReturned: 1,
+      executionTimeMillisEstimate: 0,
+      works: 2,
+      advanced: 1,
+      needTime: 0,
+      needYield: 0,
+      saveState: 0,
+      restoreState: 0,
+      isEOF: 1,
+      docsExamined: 1,
+      alreadyHasObj: 0,
+      inputStage: {
+        stage: 'IXSCAN',
+        nReturned: 1,
+        executionTimeMillisEstimate: 0,
+        works: 2,
+        advanced: 1,
+        needTime: 0,
+        needYield: 0,
+        saveState: 0,
+        restoreState: 0,
+        isEOF: 1,
+        keyPattern: { studName: 1 },
+        indexName: 'studName_1',
+        isMultiKey: false,
+        multiKeyPaths: { studName: [] },
+        isUnique: false,
+        isSparse: false,
+        isPartial: false,
+        indexVersion: 2,
+        direction: 'forward',
+        indexBounds: { studName: [ '["XYZ", "XYZ"]' ] },
+        keysExamined: 1,
+        seeks: 1,
+        dupsTested: 0,
+        dupsDropped: 0
+      }
+    }
+  },
+  serverInfo: {
+    host: 'dbsl-21',
+    port: 27017,
+    version: '4.2.13',
+    gitVersion: '82dd40f60c55dae12426c08fd7150d79a0e28e23'
+  },
+  ok: 1
+}
+
+// Drop all indexes (except _id)
+te31424_db> db.student.dropIndexes()
+{
+  nIndexesWas: 2,
+  msg: 'non-_id indexes dropped for collection',
+  ok: 1
+}
+
+
+// =============================
+// PART 2: Aggregation Examples
+// =============================
+
+// $match
+te31424_db>  db.student.aggregate([{ $match: { studCity: "Pune" } }])
+[
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f48'),
+    studId: 101,
+    studName: 'XYZ',
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4c'),
+    studId: 105,
+    studName: 'Arjun',
+    studAge: 22,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'Php', 'Springboot', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4d'),
+    studId: 106,
+    studName: 'Devansh',
+    studAge: 22,
+    studBranch: 'Civil Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f50'),
+    studId: 109,
+    studName: 'Manav',
+    studAge: 24,
+    studBranch: 'IT Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'JAVA', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f51'),
+    studId: 110,
+    studName: 'Rahul',
+    studAge: 21,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ]
+  }
+]
+
+
+// $project
+te31424_db> db.student.aggregate([{ $project: { studName: 1, studBranch: 1, _id: 0 } }])
+[
+  { studName: 'XYZ', studBranch: 'Computer Engineering' },
+  { studName: 'Aarav', studBranch: 'Computer Engineering' },
+  { studName: 'Ishaan', studBranch: 'Information Technology' },
+  {
+    studName: 'Rohan',
+    studBranch: 'Electronics and Communication Engineering'
+  },
+  { studName: 'Arjun', studBranch: 'Computer Engineering' },
+  { studName: 'Devansh', studBranch: 'Civil Engineering' },
+  { studName: 'Siddharth', studBranch: 'Computer Engineering' },
+  { studName: 'Kunal', studBranch: 'Civil Engineering' },
+  { studName: 'Manav', studBranch: 'IT Engineering' },
+  { studName: 'Rahul', studBranch: 'Computer Engineering' },
+  { studName: 'Aditya', studBranch: 'Mechanical Engineering' }
+]
+
+// $count
+te31424_db> db.student.aggregate([{ $count: "totalStudents" }])
+[ { totalStudents: 11 } ]
+
+// $set
+te31424_db> db.student.aggregate([{ $set: { isAdult: { $gte: ["$studAge", 18] } } }])
+[
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f48'),
+    studId: 101,
+    studName: 'XYZ',
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ],
+    isAdult: true
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f49'),
+    studId: 102,
+    studName: 'Aarav',
+    studAge: 21,
+    studBranch: 'Computer Engineering',
+    studCity: 'mumbai',
+    stuSkills: [ 'java', 'Python', 'MongoDB' ],
+    isAdult: true
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4a'),
+    studId: 103,
+    studName: 'Ishaan',
+    studAge: 22,
+    studBranch: 'Information Technology',
+    studCity: 'Thane',
+    stuSkills: [ 'C++', 'Python', 'React' ],
+    isAdult: true
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4b'),
+    studId: 104,
+    studName: 'Rohan',
+    studAge: 24,
+    studBranch: 'Electronics and Communication Engineering',
+    studCity: 'nagpur',
+    stuSkills: [ 'C++', 'Mysql', 'MongoDB' ],
+    isAdult: true
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4c'),
+    studId: 105,
+    studName: 'Arjun',
+    studAge: 22,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'Php', 'Springboot', 'MongoDB' ],
+    isAdult: true
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4d'),
+    studId: 106,
+    studName: 'Devansh',
+    studAge: 22,
+    studBranch: 'Civil Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ],
+    isAdult: true
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4e'),
+    studId: 107,
+    studName: 'Siddharth',
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    studCity: 'bengal',
+    stuSkills: [ 'java', 'MERN', 'MongoDB' ],
+    isAdult: true
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4f'),
+    studId: 108,
+    studName: 'Kunal',
+    studAge: 23,
+    studBranch: 'Civil Engineering',
+    studCity: 'baramati',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ],
+    isAdult: true
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f50'),
+    studId: 109,
+    studName: 'Manav',
+    studAge: 24,
+    studBranch: 'IT Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'JAVA', 'Python', 'MongoDB' ],
+    isAdult: true
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f51'),
+    studId: 110,
+    studName: 'Rahul',
+    studAge: 21,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ],
+    isAdult: true
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f52'),
+    studId: 111,
+    studName: 'Aditya',
+    studAge: 22,
+    studBranch: 'Mechanical Engineering',
+    studCity: 'Delhi',
+    stuSkills: [ 'C', 'Python', 'MongoDB' ],
+    isAdult: true
+  }
+]
+
+
+// $unset
+te31424_db> db.student.aggregate([{ $unset: "studCity" }])
+[
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f48'),
+    studId: 101,
+    studName: 'XYZ',
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f49'),
+    studId: 102,
+    studName: 'Aarav',
+    studAge: 21,
+    studBranch: 'Computer Engineering',
+    stuSkills: [ 'java', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4a'),
+    studId: 103,
+    studName: 'Ishaan',
+    studAge: 22,
+    studBranch: 'Information Technology',
+    stuSkills: [ 'C++', 'Python', 'React' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4b'),
+    studId: 104,
+    studName: 'Rohan',
+    studAge: 24,
+    studBranch: 'Electronics and Communication Engineering',
+    stuSkills: [ 'C++', 'Mysql', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4c'),
+    studId: 105,
+    studName: 'Arjun',
+    studAge: 22,
+    studBranch: 'Computer Engineering',
+    stuSkills: [ 'Php', 'Springboot', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4d'),
+    studId: 106,
+    studName: 'Devansh',
+    studAge: 22,
+    studBranch: 'Civil Engineering',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4e'),
+    studId: 107,
+    studName: 'Siddharth',
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    stuSkills: [ 'java', 'MERN', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4f'),
+    studId: 108,
+    studName: 'Kunal',
+    studAge: 23,
+    studBranch: 'Civil Engineering',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f50'),
+    studId: 109,
+    studName: 'Manav',
+    studAge: 24,
+    studBranch: 'IT Engineering',
+    stuSkills: [ 'JAVA', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f51'),
+    studId: 110,
+    studName: 'Rahul',
+    studAge: 21,
+    studBranch: 'Computer Engineering',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f52'),
+    studId: 111,
+    studName: 'Aditya',
+    studAge: 22,
+    studBranch: 'Mechanical Engineering',
+    stuSkills: [ 'C', 'Python', 'MongoDB' ]
+  }
+]
+
+
+// $merge
+te31424_db> db.student.aggregate([
+...   { $match: { studCity: "Pune" } },
+...   { $merge: { into: "puneStudents" } }
+... ])
+... 
+
+te31424_db> show collections
+mumbaiStudents
+puneStudents
+Restaurants
+student
+te31424_db> db.mumbaiStudents.find()
+
+te31424_db> db.puneStudents.find()
+[
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f48'),
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ],
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    studId: 101,
+    studName: 'XYZ'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4c'),
+    stuSkills: [ 'Php', 'Springboot', 'MongoDB' ],
+    studAge: 22,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    studId: 105,
+    studName: 'Arjun'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4d'),
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ],
+    studAge: 22,
+    studBranch: 'Civil Engineering',
+    studCity: 'Pune',
+    studId: 106,
+    studName: 'Devansh'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f50'),
+    stuSkills: [ 'JAVA', 'Python', 'MongoDB' ],
+    studAge: 24,
+    studBranch: 'IT Engineering',
+    studCity: 'Pune',
+    studId: 109,
+    studName: 'Manav'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f51'),
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ],
+    studAge: 21,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    studId: 110,
+    studName: 'Rahul'
+  }
+]
+
+// $out
+te31424_db> db.student.aggregate([
+...   { $match: { studCity: "Mumbai" } },
+...   { $out: "mumbaiStudents" }
+... ])
+... 
+
+te31424_db> show collections
+mumbaiStudents
+puneStudents
+Restaurants
+student
+te31424_db> db.mumbaiStudents.find()
+
+
+// $sort
+te31424_db> db.student.aggregate([{ $sort: { studAge: -1 } }])
+[
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4b'),
+    studId: 104,
+    studName: 'Rohan',
+    studAge: 24,
+    studBranch: 'Electronics and Communication Engineering',
+    studCity: 'nagpur',
+    stuSkills: [ 'C++', 'Mysql', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f50'),
+    studId: 109,
+    studName: 'Manav',
+    studAge: 24,
+    studBranch: 'IT Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'JAVA', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f48'),
+    studId: 101,
+    studName: 'XYZ',
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4e'),
+    studId: 107,
+    studName: 'Siddharth',
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    studCity: 'bengal',
+    stuSkills: [ 'java', 'MERN', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4f'),
+    studId: 108,
+    studName: 'Kunal',
+    studAge: 23,
+    studBranch: 'Civil Engineering',
+    studCity: 'baramati',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4a'),
+    studId: 103,
+    studName: 'Ishaan',
+    studAge: 22,
+    studBranch: 'Information Technology',
+    studCity: 'Thane',
+    stuSkills: [ 'C++', 'Python', 'React' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4c'),
+    studId: 105,
+    studName: 'Arjun',
+    studAge: 22,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'Php', 'Springboot', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4d'),
+    studId: 106,
+    studName: 'Devansh',
+    studAge: 22,
+    studBranch: 'Civil Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f52'),
+    studId: 111,
+    studName: 'Aditya',
+    studAge: 22,
+    studBranch: 'Mechanical Engineering',
+    studCity: 'Delhi',
+    stuSkills: [ 'C', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f49'),
+    studId: 102,
+    studName: 'Aarav',
+    studAge: 21,
+    studBranch: 'Computer Engineering',
+    studCity: 'mumbai',
+    stuSkills: [ 'java', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f51'),
+    studId: 110,
+    studName: 'Rahul',
+    studAge: 21,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ]
+  }
+]
+
+// $limit
+te31424_db> db.student.aggregate([{ $limit: 3 }])
+[
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f48'),
+    studId: 101,
+    studName: 'XYZ',
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f49'),
+    studId: 102,
+    studName: 'Aarav',
+    studAge: 21,
+    studBranch: 'Computer Engineering',
+    studCity: 'mumbai',
+    stuSkills: [ 'java', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4a'),
+    studId: 103,
+    studName: 'Ishaan',
+    studAge: 22,
+    studBranch: 'Information Technology',
+    studCity: 'Thane',
+    stuSkills: [ 'C++', 'Python', 'React' ]
+  }
+]
+
+
+// $skip
+te31424_db> db.student.aggregate([{ $skip: 5 }])
+[
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4d'),
+    studId: 106,
+    studName: 'Devansh',
+    studAge: 22,
+    studBranch: 'Civil Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4e'),
+    studId: 107,
+    studName: 'Siddharth',
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    studCity: 'bengal',
+    stuSkills: [ 'java', 'MERN', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4f'),
+    studId: 108,
+    studName: 'Kunal',
+    studAge: 23,
+    studBranch: 'Civil Engineering',
+    studCity: 'baramati',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f50'),
+    studId: 109,
+    studName: 'Manav',
+    studAge: 24,
+    studBranch: 'IT Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'JAVA', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f51'),
+    studId: 110,
+    studName: 'Rahul',
+    studAge: 21,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ]
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f52'),
+    studId: 111,
+    studName: 'Aditya',
+    studAge: 22,
+    studBranch: 'Mechanical Engineering',
+    studCity: 'Delhi',
+    stuSkills: [ 'C', 'Python', 'MongoDB' ]
+  }
+]
+
+
+// $unwind
+te31424_db> db.student.aggregate([{ $unwind: "$stuSkills" }])
+[
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f48'),
+    studId: 101,
+    studName: 'XYZ',
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: 'C++'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f48'),
+    studId: 101,
+    studName: 'XYZ',
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: 'Python'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f48'),
+    studId: 101,
+    studName: 'XYZ',
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: 'MongoDB'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f49'),
+    studId: 102,
+    studName: 'Aarav',
+    studAge: 21,
+    studBranch: 'Computer Engineering',
+    studCity: 'mumbai',
+    stuSkills: 'java'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f49'),
+    studId: 102,
+    studName: 'Aarav',
+    studAge: 21,
+    studBranch: 'Computer Engineering',
+    studCity: 'mumbai',
+    stuSkills: 'Python'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f49'),
+    studId: 102,
+    studName: 'Aarav',
+    studAge: 21,
+    studBranch: 'Computer Engineering',
+    studCity: 'mumbai',
+    stuSkills: 'MongoDB'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4a'),
+    studId: 103,
+    studName: 'Ishaan',
+    studAge: 22,
+    studBranch: 'Information Technology',
+    studCity: 'Thane',
+    stuSkills: 'C++'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4a'),
+    studId: 103,
+    studName: 'Ishaan',
+    studAge: 22,
+    studBranch: 'Information Technology',
+    studCity: 'Thane',
+    stuSkills: 'Python'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4a'),
+    studId: 103,
+    studName: 'Ishaan',
+    studAge: 22,
+    studBranch: 'Information Technology',
+    studCity: 'Thane',
+    stuSkills: 'React'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4b'),
+    studId: 104,
+    studName: 'Rohan',
+    studAge: 24,
+    studBranch: 'Electronics and Communication Engineering',
+    studCity: 'nagpur',
+    stuSkills: 'C++'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4b'),
+    studId: 104,
+    studName: 'Rohan',
+    studAge: 24,
+    studBranch: 'Electronics and Communication Engineering',
+    studCity: 'nagpur',
+    stuSkills: 'Mysql'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4b'),
+    studId: 104,
+    studName: 'Rohan',
+    studAge: 24,
+    studBranch: 'Electronics and Communication Engineering',
+    studCity: 'nagpur',
+    stuSkills: 'MongoDB'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4c'),
+    studId: 105,
+    studName: 'Arjun',
+    studAge: 22,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: 'Php'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4c'),
+    studId: 105,
+    studName: 'Arjun',
+    studAge: 22,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: 'Springboot'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4c'),
+    studId: 105,
+    studName: 'Arjun',
+    studAge: 22,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: 'MongoDB'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4d'),
+    studId: 106,
+    studName: 'Devansh',
+    studAge: 22,
+    studBranch: 'Civil Engineering',
+    studCity: 'Pune',
+    stuSkills: 'C++'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4d'),
+    studId: 106,
+    studName: 'Devansh',
+    studAge: 22,
+    studBranch: 'Civil Engineering',
+    studCity: 'Pune',
+    stuSkills: 'Python'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4d'),
+    studId: 106,
+    studName: 'Devansh',
+    studAge: 22,
+    studBranch: 'Civil Engineering',
+    studCity: 'Pune',
+    stuSkills: 'MongoDB'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4e'),
+    studId: 107,
+    studName: 'Siddharth',
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    studCity: 'bengal',
+    stuSkills: 'java'
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4e'),
+    studId: 107,
+    studName: 'Siddharth',
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    studCity: 'bengal',
+    stuSkills: 'MERN'
+  }
+]
+
+
+// $addFields
+te31424_db> db.student.aggregate([{ $addFields: { graduated: false } }])
+[
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f48'),
+    studId: 101,
+    studName: 'XYZ',
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ],
+    graduated: false
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f49'),
+    studId: 102,
+    studName: 'Aarav',
+    studAge: 21,
+    studBranch: 'Computer Engineering',
+    studCity: 'mumbai',
+    stuSkills: [ 'java', 'Python', 'MongoDB' ],
+    graduated: false
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4a'),
+    studId: 103,
+    studName: 'Ishaan',
+    studAge: 22,
+    studBranch: 'Information Technology',
+    studCity: 'Thane',
+    stuSkills: [ 'C++', 'Python', 'React' ],
+    graduated: false
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4b'),
+    studId: 104,
+    studName: 'Rohan',
+    studAge: 24,
+    studBranch: 'Electronics and Communication Engineering',
+    studCity: 'nagpur',
+    stuSkills: [ 'C++', 'Mysql', 'MongoDB' ],
+    graduated: false
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4c'),
+    studId: 105,
+    studName: 'Arjun',
+    studAge: 22,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'Php', 'Springboot', 'MongoDB' ],
+    graduated: false
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4d'),
+    studId: 106,
+    studName: 'Devansh',
+    studAge: 22,
+    studBranch: 'Civil Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ],
+    graduated: false
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4e'),
+    studId: 107,
+    studName: 'Siddharth',
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    studCity: 'bengal',
+    stuSkills: [ 'java', 'MERN', 'MongoDB' ],
+    graduated: false
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4f'),
+    studId: 108,
+    studName: 'Kunal',
+    studAge: 23,
+    studBranch: 'Civil Engineering',
+    studCity: 'baramati',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ],
+    graduated: false
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f50'),
+    studId: 109,
+    studName: 'Manav',
+    studAge: 24,
+    studBranch: 'IT Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'JAVA', 'Python', 'MongoDB' ],
+    graduated: false
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f51'),
+    studId: 110,
+    studName: 'Rahul',
+    studAge: 21,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ],
+    graduated: false
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f52'),
+    studId: 111,
+    studName: 'Aditya',
+    studAge: 22,
+    studBranch: 'Mechanical Engineering',
+    studCity: 'Delhi',
+    stuSkills: [ 'C', 'Python', 'MongoDB' ],
+    graduated: false
+  }
+]
+
+
+// $lookup (join with another collection)
+te31424_db> db.student.aggregate([
+...   { $lookup: {
+...       from: "institute",
+...       localField: "studBranch",
+...       foreignField: "dept",
+...       as: "instituteDetails"
+...   }}
+... ])
+[
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f48'),
+    studId: 101,
+    studName: 'XYZ',
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ],
+    instituteDetails: []
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f49'),
+    studId: 102,
+    studName: 'Aarav',
+    studAge: 21,
+    studBranch: 'Computer Engineering',
+    studCity: 'mumbai',
+    stuSkills: [ 'java', 'Python', 'MongoDB' ],
+    instituteDetails: []
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4a'),
+    studId: 103,
+    studName: 'Ishaan',
+    studAge: 22,
+    studBranch: 'Information Technology',
+    studCity: 'Thane',
+    stuSkills: [ 'C++', 'Python', 'React' ],
+    instituteDetails: []
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4b'),
+    studId: 104,
+    studName: 'Rohan',
+    studAge: 24,
+    studBranch: 'Electronics and Communication Engineering',
+    studCity: 'nagpur',
+    stuSkills: [ 'C++', 'Mysql', 'MongoDB' ],
+    instituteDetails: []
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4c'),
+    studId: 105,
+    studName: 'Arjun',
+    studAge: 22,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'Php', 'Springboot', 'MongoDB' ],
+    instituteDetails: []
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4d'),
+    studId: 106,
+    studName: 'Devansh',
+    studAge: 22,
+    studBranch: 'Civil Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ],
+    instituteDetails: []
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4e'),
+    studId: 107,
+    studName: 'Siddharth',
+    studAge: 23,
+    studBranch: 'Computer Engineering',
+    studCity: 'bengal',
+    stuSkills: [ 'java', 'MERN', 'MongoDB' ],
+    instituteDetails: []
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f4f'),
+    studId: 108,
+    studName: 'Kunal',
+    studAge: 23,
+    studBranch: 'Civil Engineering',
+    studCity: 'baramati',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ],
+    instituteDetails: []
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f50'),
+    studId: 109,
+    studName: 'Manav',
+    studAge: 24,
+    studBranch: 'IT Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'JAVA', 'Python', 'MongoDB' ],
+    instituteDetails: []
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f51'),
+    studId: 110,
+    studName: 'Rahul',
+    studAge: 21,
+    studBranch: 'Computer Engineering',
+    studCity: 'Pune',
+    stuSkills: [ 'C++', 'Python', 'MongoDB' ],
+    instituteDetails: []
+  },
+  {
+    _id: ObjectId('68df4d734d2a0fe289ce5f52'),
+    studId: 111,
+    studName: 'Aditya',
+    studAge: 22,
+    studBranch: 'Mechanical Engineering',
+    studCity: 'Delhi',
+    stuSkills: [ 'C', 'Python', 'MongoDB' ],
+    instituteDetails: []
+  }
+]
+
+
+// =============================
+// PART 3: Group Queries
+// =============================
+
+// Display Total Data
+te31424_db> db.student.aggregate([{ $count: "totalStudents" }])
+[ { totalStudents: 11 } ]
+
+// Count No of students per department
+te31424_db> db.student.aggregate([
+...   { $group: { _id: "$studBranch", count: { $sum: 1 } } }
+... ])
+[
+  { _id: 'Mechanical Engineering', count: 1 },
+  { _id: 'Computer Engineering', count: 5 },
+  { _id: 'Civil Engineering', count: 2 },
+  { _id: 'Electronics and Communication Engineering', count: 1 },
+  { _id: 'Information Technology', count: 1 },
+  { _id: 'IT Engineering', count: 1 }
+]
+
+// Count No of students living in Pune
+te31424_db> db.student.aggregate([
+...   { $match: { studCity: "Pune" } },
+...   { $count: "puneStudents" }
+... ])
+[ { puneStudents: 5 } ]
+
+// Department with least number of students
+te31424_db> db.student.aggregate([
+...   { $group: { _id: "$studBranch", count: { $sum: 1 } } },
+...   { $sort: { count: 1 } },
+...   { $limit: 1 }
+... ])
+[ { _id: 'Mechanical Engineering', count: 1 } ]
+
+
+// Average age of students per department
+te31424_db> db.student.aggregate([
+...   { $group: { _id: "$studBranch", avgAge: { $avg: "$studAge" } } }
+... ])
+[
+  { _id: 'Mechanical Engineering', avgAge: 22 },
+  { _id: 'Computer Engineering', avgAge: 22 },
+  { _id: 'Civil Engineering', avgAge: 22.5 },
+  { _id: 'Electronics and Communication Engineering', avgAge: 24 },
+  { _id: 'Information Technology', avgAge: 22 },
+  { _id: 'IT Engineering', avgAge: 24 }
+]
+
+// Youngest student per department
+te31424_db> db.student.aggregate([
+...   { $group: { _id: "$studBranch", youngest: { $min: "$studAge" } } }
+... ])
+[
+  { _id: 'Information Technology', youngest: 22 },
+  { _id: 'Mechanical Engineering', youngest: 22 },
+  { _id: 'Electronics and Communication Engineering', youngest: 24 },
+  { _id: 'Computer Engineering', youngest: 21 },
+  { _id: 'Civil Engineering', youngest: 22 },
+  { _id: 'IT Engineering', youngest: 24 }
+]
+
+
+// Oldest student per department
+te31424_db> db.student.aggregate([
+...   { $group: { _id: "$studBranch", oldest: { $max: "$studAge" } } }
+... ])
+... 
+[
+  { _id: 'Mechanical Engineering', oldest: 22 },
+  { _id: 'Computer Engineering', oldest: 23 },
+  { _id: 'Civil Engineering', oldest: 23 },
+  { _id: 'Electronics and Communication Engineering', oldest: 24 },
+  { _id: 'Information Technology', oldest: 22 },
+  { _id: 'IT Engineering', oldest: 24 }
+]
+
+// Department with most students
+te31424_db> db.student.aggregate([
+...   { $group: { _id: "$studBranch", count: { $sum: 1 } } },
+...   { $sort: { count: -1 } },
+...   { $limit: 1 }
+... ])
+... 
+[ { _id: 'Computer Engineering', count: 5 } ]
+
+
+// Departments having more than 3 students
+te31424_db> db.student.aggregate([
+...   { $group: { _id: "$studBranch", count: { $sum: 1 } } },
+...   { $match: { count: { $gt: 3 } } }
+... ])
+... 
+[ { _id: 'Computer Engineering', count: 5 } ]
+
+// Students older than 25 per department
+te31424_db> db.student.aggregate([
+...   { $match: { studAge: { $gt: 25 } } },
+...   { $group: { _id: "$studBranch", count: { $sum: 1 } } }
+... ])
+... 
+
+//None of the student is above 25
+
+// Students having MongoDB as a skill per department
+te31424_db> db.student.aggregate([
+...   { $match: { stuSkills: "MongoDB" } },
+...   { $group: { _id: "$studBranch", count: { $sum: 1 } } }
+... ])
+[
+  { _id: 'Electronics and Communication Engineering', count: 1 },
+  { _id: 'Computer Engineering', count: 5 },
+  { _id: 'Civil Engineering', count: 2 },
+  { _id: 'IT Engineering', count: 1 },
+  { _id: 'Mechanical Engineering', count: 1 }
+]
+
+
+// Unique skills per department (count)
+te31424_db> db.student.aggregate([
+...   { $unwind: "$stuSkills" },
+...   { $group: { _id: "$studBranch", uniqueSkills: { $addToSet: "$stuSkills" } } },
+...   { $project: { count: { $size: "$uniqueSkills" } } }
+... ])
+... 
+[
+  { _id: 'Information Technology', count: 3 },
+  { _id: 'Mechanical Engineering', count: 3 },
+  { _id: 'Electronics and Communication Engineering', count: 3 },
+  { _id: 'Computer Engineering', count: 7 },
+  { _id: 'Civil Engineering', count: 3 },
+  { _id: 'IT Engineering', count: 3 }
+]
+
+// Distinct skills per department
+te31424_db> db.student.aggregate([
+...   { $unwind: "$stuSkills" },
+...   { $group: { _id: "$studBranch", skills: { $addToSet: "$stuSkills" } } }
+... ])
+[
+  {
+    _id: 'Information Technology',
+    skills: [ 'React', 'C++', 'Python' ]
+  },
+  {
+    _id: 'Mechanical Engineering',
+    skills: [ 'Python', 'C', 'MongoDB' ]
+  },
+  {
+    _id: 'Electronics and Communication Engineering',
+    skills: [ 'C++', 'MongoDB', 'Mysql' ]
+  },
+  {
+    _id: 'Computer Engineering',
+    skills: [ 'MERN', 'MongoDB', 'Springboot', 'C++', 'Php', 'Python', 'java' ]
+  },
+  { _id: 'Civil Engineering', skills: [ 'MongoDB', 'C++', 'Python' ] },
+  { _id: 'IT Engineering', skills: [ 'JAVA', 'MongoDB', 'Python' ] }
+]
+
+
+
+
+
+
+
+
+
+
+

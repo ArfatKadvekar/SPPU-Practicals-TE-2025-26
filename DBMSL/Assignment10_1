@@ -1,0 +1,237 @@
+db.student.insertOne({
+    studId: 101,
+    studName: "XYZ",
+    studAge: 23,
+    studBranch: "Computer Engineering",
+    studCity: "Pune",
+    stuSkills: ["C++", "Python", "MongoDB"]
+}),
+db.student.insertMany([
+    {
+        studId: 102,
+        studName: "Aarav",
+        studAge: 21,
+        studBranch: "Computer Engineering",
+        studCity: "mumbai",
+        stuSkills: ["java", "Python", "MongoDB"]
+    },
+    {
+        studId: 103,
+        studName: "Ishaan",
+        studAge: 22,
+        studBranch: "Information Technology",
+        studCity: "Thane",
+        stuSkills: ["C++", "Python", "React"]
+    },
+    {
+        studId: 104,
+        studName: "Rohan",
+        studAge: 24,
+        studBranch: "Electronics and Communication Engineering",
+        studCity: "nagpur",
+        stuSkills: ["C++", "Mysql", "MongoDB"]
+    },
+    {
+        studId: 105,
+        studName: "Arjun",
+        studAge: 22,
+        studBranch: "Computer Engineering",
+        studCity: "Pune",
+        stuSkills: ["Php", "Springboot", "MongoDB"]
+    },
+    {
+        studId: 106,
+        studName: "Devansh",
+        studAge: 22,
+        studBranch: "Civil Engineering",
+        studCity: "Pune",
+        stuSkills: ["C++", "Python", "MongoDB"]
+    },
+    {
+        studId: 107,
+        studName: "Siddharth",
+        studAge: 23,
+        studBranch: "Computer Engineering",
+        studCity: "bengal",
+        stuSkills: ["java", "MERN", "MongoDB"]
+    },
+    {
+        studId: 108,
+        studName: "Kunal",
+        studAge: 23,
+        studBranch: "Civil Engineering",
+        studCity: "baramati",
+        stuSkills: ["C++", "Python", "MongoDB"]
+    },
+    {
+        studId: 109,
+        studName: "Manav",
+        studAge: 24,
+        studBranch: "IT Engineering",
+        studCity: "Pune",
+        stuSkills: ["JAVA", "Python", "MongoDB"]
+    },
+    {
+        studId: 110,
+        studName: "Rahul",
+        studAge: 21,
+        studBranch: "Computer Engineering",
+        studCity: "Pune",
+        stuSkills: ["C++", "Python", "MongoDB"]
+    },
+    {
+        studId: 111,
+        studName: "Aditya",
+        studAge: 22,
+        studBranch: "Mechanical Engineering",
+        studCity: "Delhi",
+        stuSkills: ["C", "Python", "MongoDB"]
+    }
+]);
+
+
+
+// Display all indexes
+te31424_db> db.student.getIndexes()
+[ { v: 2, key: { _id: 1 }, name: '_id_', ns: 'te31424_db.student' } ]
+
+// Search for studName = "XYZ" and show query plan (without index)
+te31424_db> db.student.find({ studName: "XYZ" }).explain("executionStats")
+{
+  queryPlanner: {
+    plannerVersion: 1,
+    namespace: 'te31424_db.student',
+    indexFilterSet: false,
+    parsedQuery: { studName: { '$eq': 'XYZ' } },
+    winningPlan: {
+      stage: 'COLLSCAN',
+      filter: { studName: { '$eq': 'XYZ' } },
+      direction: 'forward'
+    },
+    rejectedPlans: []
+  },
+  executionStats: {
+    executionSuccess: true,
+    nReturned: 1,
+    executionTimeMillis: 0,
+    totalKeysExamined: 0,
+    totalDocsExamined: 11,
+    executionStages: {
+      stage: 'COLLSCAN',
+      filter: { studName: { '$eq': 'XYZ' } },
+      nReturned: 1,
+      executionTimeMillisEstimate: 0,
+      works: 13,
+      advanced: 1,
+      needTime: 11,
+      needYield: 0,
+      saveState: 0,
+      restoreState: 0,
+      isEOF: 1,
+      direction: 'forward',
+      docsExamined: 11
+    }
+  },
+  serverInfo: {
+    host: 'dbsl-21',
+    port: 27017,
+    version: '4.2.13',
+    gitVersion: '82dd40f60c55dae12426c08fd7150d79a0e28e23'
+  },
+  ok: 1
+}
+
+// Create index on studName
+te31424_db> db.student.createIndex({ studName: 1 })
+studName_1
+
+// Search again and show query plan (with index)
+te31424_db> db.student.find({ studName: "XYZ" }).explain("executionStats")
+{
+  queryPlanner: {
+    plannerVersion: 1,
+    namespace: 'te31424_db.student',
+    indexFilterSet: false,
+    parsedQuery: { studName: { '$eq': 'XYZ' } },
+    winningPlan: {
+      stage: 'FETCH',
+      inputStage: {
+        stage: 'IXSCAN',
+        keyPattern: { studName: 1 },
+        indexName: 'studName_1',
+        isMultiKey: false,
+        multiKeyPaths: { studName: [] },
+        isUnique: false,
+        isSparse: false,
+        isPartial: false,
+        indexVersion: 2,
+        direction: 'forward',
+        indexBounds: { studName: [ '["XYZ", "XYZ"]' ] }
+      }
+    },
+    rejectedPlans: []
+  },
+  executionStats: {
+    executionSuccess: true,
+    nReturned: 1,
+    executionTimeMillis: 0,
+    totalKeysExamined: 1,
+    totalDocsExamined: 1,
+    executionStages: {
+      stage: 'FETCH',
+      nReturned: 1,
+      executionTimeMillisEstimate: 0,
+      works: 2,
+      advanced: 1,
+      needTime: 0,
+      needYield: 0,
+      saveState: 0,
+      restoreState: 0,
+      isEOF: 1,
+      docsExamined: 1,
+      alreadyHasObj: 0,
+      inputStage: {
+        stage: 'IXSCAN',
+        nReturned: 1,
+        executionTimeMillisEstimate: 0,
+        works: 2,
+        advanced: 1,
+        needTime: 0,
+        needYield: 0,
+        saveState: 0,
+        restoreState: 0,
+        isEOF: 1,
+        keyPattern: { studName: 1 },
+        indexName: 'studName_1',
+        isMultiKey: false,
+        multiKeyPaths: { studName: [] },
+        isUnique: false,
+        isSparse: false,
+        isPartial: false,
+        indexVersion: 2,
+        direction: 'forward',
+        indexBounds: { studName: [ '["XYZ", "XYZ"]' ] },
+        keysExamined: 1,
+        seeks: 1,
+        dupsTested: 0,
+        dupsDropped: 0
+      }
+    }
+  },
+  serverInfo: {
+    host: 'dbsl-21',
+    port: 27017,
+    version: '4.2.13',
+    gitVersion: '82dd40f60c55dae12426c08fd7150d79a0e28e23'
+  },
+  ok: 1
+}
+
+// Drop all indexes (except _id)
+te31424_db> db.student.dropIndexes()
+{
+  nIndexesWas: 2,
+  msg: 'non-_id indexes dropped for collection',
+  ok: 1
+}
+

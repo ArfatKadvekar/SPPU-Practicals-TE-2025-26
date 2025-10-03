@@ -1,0 +1,156 @@
+// Display Total Data
+te31424_db> db.student.aggregate([{ $count: "totalStudents" }])
+[ { totalStudents: 11 } ]
+
+// Count No of students per department
+te31424_db> db.student.aggregate([
+...   { $group: { _id: "$studBranch", count: { $sum: 1 } } }
+... ])
+[
+  { _id: 'Mechanical Engineering', count: 1 },
+  { _id: 'Computer Engineering', count: 5 },
+  { _id: 'Civil Engineering', count: 2 },
+  { _id: 'Electronics and Communication Engineering', count: 1 },
+  { _id: 'Information Technology', count: 1 },
+  { _id: 'IT Engineering', count: 1 }
+]
+
+// Count No of students living in Pune
+te31424_db> db.student.aggregate([
+...   { $match: { studCity: "Pune" } },
+...   { $count: "puneStudents" }
+... ])
+[ { puneStudents: 5 } ]
+
+// Department with least number of students
+te31424_db> db.student.aggregate([
+...   { $group: { _id: "$studBranch", count: { $sum: 1 } } },
+...   { $sort: { count: 1 } },
+...   { $limit: 1 }
+... ])
+[ { _id: 'Mechanical Engineering', count: 1 } ]
+
+
+// Average age of students per department
+te31424_db> db.student.aggregate([
+...   { $group: { _id: "$studBranch", avgAge: { $avg: "$studAge" } } }
+... ])
+[
+  { _id: 'Mechanical Engineering', avgAge: 22 },
+  { _id: 'Computer Engineering', avgAge: 22 },
+  { _id: 'Civil Engineering', avgAge: 22.5 },
+  { _id: 'Electronics and Communication Engineering', avgAge: 24 },
+  { _id: 'Information Technology', avgAge: 22 },
+  { _id: 'IT Engineering', avgAge: 24 }
+]
+
+// Youngest student per department
+te31424_db> db.student.aggregate([
+...   { $group: { _id: "$studBranch", youngest: { $min: "$studAge" } } }
+... ])
+[
+  { _id: 'Information Technology', youngest: 22 },
+  { _id: 'Mechanical Engineering', youngest: 22 },
+  { _id: 'Electronics and Communication Engineering', youngest: 24 },
+  { _id: 'Computer Engineering', youngest: 21 },
+  { _id: 'Civil Engineering', youngest: 22 },
+  { _id: 'IT Engineering', youngest: 24 }
+]
+
+
+// Oldest student per department
+te31424_db> db.student.aggregate([
+...   { $group: { _id: "$studBranch", oldest: { $max: "$studAge" } } }
+... ])
+... 
+[
+  { _id: 'Mechanical Engineering', oldest: 22 },
+  { _id: 'Computer Engineering', oldest: 23 },
+  { _id: 'Civil Engineering', oldest: 23 },
+  { _id: 'Electronics and Communication Engineering', oldest: 24 },
+  { _id: 'Information Technology', oldest: 22 },
+  { _id: 'IT Engineering', oldest: 24 }
+]
+
+// Department with most students
+te31424_db> db.student.aggregate([
+...   { $group: { _id: "$studBranch", count: { $sum: 1 } } },
+...   { $sort: { count: -1 } },
+...   { $limit: 1 }
+... ])
+... 
+[ { _id: 'Computer Engineering', count: 5 } ]
+
+
+// Departments having more than 3 students
+te31424_db> db.student.aggregate([
+...   { $group: { _id: "$studBranch", count: { $sum: 1 } } },
+...   { $match: { count: { $gt: 3 } } }
+... ])
+... 
+[ { _id: 'Computer Engineering', count: 5 } ]
+
+// Students older than 25 per department
+te31424_db> db.student.aggregate([
+...   { $match: { studAge: { $gt: 25 } } },
+...   { $group: { _id: "$studBranch", count: { $sum: 1 } } }
+... ])
+... 
+
+//None of the student is above 25
+
+// Students having MongoDB as a skill per department
+te31424_db> db.student.aggregate([
+...   { $match: { stuSkills: "MongoDB" } },
+...   { $group: { _id: "$studBranch", count: { $sum: 1 } } }
+... ])
+[
+  { _id: 'Electronics and Communication Engineering', count: 1 },
+  { _id: 'Computer Engineering', count: 5 },
+  { _id: 'Civil Engineering', count: 2 },
+  { _id: 'IT Engineering', count: 1 },
+  { _id: 'Mechanical Engineering', count: 1 }
+]
+
+
+// Unique skills per department (count)
+te31424_db> db.student.aggregate([
+...   { $unwind: "$stuSkills" },
+...   { $group: { _id: "$studBranch", uniqueSkills: { $addToSet: "$stuSkills" } } },
+...   { $project: { count: { $size: "$uniqueSkills" } } }
+... ])
+... 
+[
+  { _id: 'Information Technology', count: 3 },
+  { _id: 'Mechanical Engineering', count: 3 },
+  { _id: 'Electronics and Communication Engineering', count: 3 },
+  { _id: 'Computer Engineering', count: 7 },
+  { _id: 'Civil Engineering', count: 3 },
+  { _id: 'IT Engineering', count: 3 }
+]
+
+// Distinct skills per department
+te31424_db> db.student.aggregate([
+...   { $unwind: "$stuSkills" },
+...   { $group: { _id: "$studBranch", skills: { $addToSet: "$stuSkills" } } }
+... ])
+[
+  {
+    _id: 'Information Technology',
+    skills: [ 'React', 'C++', 'Python' ]
+  },
+  {
+    _id: 'Mechanical Engineering',
+    skills: [ 'Python', 'C', 'MongoDB' ]
+  },
+  {
+    _id: 'Electronics and Communication Engineering',
+    skills: [ 'C++', 'MongoDB', 'Mysql' ]
+  },
+  {
+    _id: 'Computer Engineering',
+    skills: [ 'MERN', 'MongoDB', 'Springboot', 'C++', 'Php', 'Python', 'java' ]
+  },
+  { _id: 'Civil Engineering', skills: [ 'MongoDB', 'C++', 'Python' ] },
+  { _id: 'IT Engineering', skills: [ 'JAVA', 'MongoDB', 'Python' ] }
+]
