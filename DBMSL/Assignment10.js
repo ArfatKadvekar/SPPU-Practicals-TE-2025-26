@@ -18,7 +18,7 @@ db.Orders.insertMany([
 db.Orders.createIndex({ customer: 1 });
 db.Orders.createIndex({ status: 1 });
 db.Orders.createIndex({ date: 1 });
-
+db.Orders.find({ customer: "Alice" }).explain("executionStats")
 // ===== 4️⃣ Aggregation Examples =====
 
 // ---- 4a. $match + $project ----
