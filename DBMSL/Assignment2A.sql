@@ -62,6 +62,7 @@ FROM Employee E
 JOIN Dept D ON E.Dept_id = D.Dept_id;
 
 CREATE INDEX idx_emp_lname ON Employee(Emp_lname);
+SHOW INDEXES FROM Employee;
 
 CREATE VIEW emp_synonym AS
 SELECT * FROM Employee;
