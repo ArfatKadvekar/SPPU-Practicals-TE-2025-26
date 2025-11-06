@@ -28,8 +28,10 @@ public class Mongoconn {
 	                    String name = sc.nextLine();
 	                    System.out.print("Enter subject: ");
 	                    String subject = sc.nextLine();
-	                    Document doc = new Document("name", name)
-	                            .append("subject", subject);
+	               		Document doc = new Document();   // Create an empty document
+	                    doc.put("name", name);           // Add field "name"
+	                    doc.put("subject", subject); 
+	                    collection.insertOne(doc);
 	                    collection.insertOne(doc);
 	                    System.out.println("Record inserted.");
 
