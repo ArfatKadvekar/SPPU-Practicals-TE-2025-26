@@ -6,7 +6,7 @@ public class JDBCAssignment {
     static final String DB = "jdbc:mysql://localhost/arfat_db";
     static final String DRIVER = "com.mysql.cj.jdbc.Driver";
     static final String USER = "root";
-    static final String PASS = "*****";
+    static final String PASS = " ";
 
     private static Connection connectDatabase() throws ClassNotFoundException, SQLException {
         Class.forName(DRIVER);
