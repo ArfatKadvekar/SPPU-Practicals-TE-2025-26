@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <vector>
 using namespace std;
 
@@ -15,7 +16,7 @@ void showFrames(vector<int> frames) {
     cout << "\n";
     
     for (int f : frames)
-        cout << "|  " << f << "  |";
+        cout << "|  " << setw(2) <<f << "  |";
     cout << "\n";
     
     for (int i = 0; i < frames.size(); i++)
