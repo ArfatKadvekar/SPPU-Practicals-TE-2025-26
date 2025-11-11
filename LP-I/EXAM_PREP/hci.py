@@ -160,8 +160,7 @@ tk.Label(about_page, text="Developed by Tony Stark – HCI Project 2025",
 pages["about"] = about_page
 
 # ---------------- Status Bar ----------------
-status_bar = tk.Label(root, text="Current Page: Register", bd=1, relief="sunken",
-                      anchor="w", font=("Helvetica", 10), bg="#e6e6e6")
+status_bar = tk.Label(root, text="Current Page: Register", bd=1, font=("Helvetica", 10), bg="#e6e6e6")
 status_bar.pack(side="bottom", fill="x")
 
 # ---------------- Start with Register ----------------
